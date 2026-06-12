@@ -1,1552 +1,427 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-950">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minijob Finder & Auto-Apply Control Center</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Minijob Aggregator Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons for graphics -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .code-font {
-            font-family: 'Fira Code', monospace;
-        }
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
-        }
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.5; }
-            100% { transform: scale(0.95); opacity: 1; }
-        }
-        .pulse-active {
-            animation: pulse-ring 2s infinite ease-in-out;
-        }
-    </style>
-</head>
-<body class="h-full text-slate-100 flex flex-col overflow-hidden">
-
-<header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
-    <div class="flex items-center gap-3">
-        <div class="bg-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-500/20 text-white">
-            <i class="fa-solid fa-robot text-xl"></i>
-        </div>
-        <div>
-            <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-400 bg-clip-text text-transparent">
-                Minijob Finder & Auto-Apply Bot
-            </h1>
-            <p class="text-xs text-slate-400">Exemption Rules Enforcer (Max 10-Hour/Week Constraints) - Local Git Portal</p>
-        </div>
-    </div>
-    <div class="flex items-center gap-3 w-full sm:w-auto">
-        <!-- API Status Indicator -->
-        <div class="flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/50 text-xs w-full sm:w-auto justify-between sm:justify-start">
-            <span class="text-slate-400">Gemini Grounded Search:</span>
-            <div class="flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-active"></span>
-                <span class="text-emerald-400 font-medium">Ready (Local Storage)</span>
-            </div>
-        </div>
-        <!-- Settings Button -->
-        <button onclick="toggleApiKeyModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2 px-3 rounded-lg border border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-all">
-            <i class="fa-solid fa-key"></i> API Config
-        </button>
-    </div>
-</header>
-
-<div class="flex flex-1 overflow-hidden">
-    <aside class="w-16 md:w-64 border-r border-slate-800 bg-slate-950 flex flex-col justify-between shrink-0">
-        <nav class="p-3 space-y-1.5">
-            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="tab-btn w-full flex items-center justify-center md:justify-start gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-500/10">
-                <i class="fa-solid fa-chart-line text-lg"></i>
-                <span class="hidden md:inline">Dashboard Overview</span>
-            </button>
-            <button onclick="switchTab('profile')" id="nav-profile" class="tab-btn w-full flex items-center justify-center md:justify-start gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition-all">
-                <i class="fa-solid fa-user-gear text-lg"></i>
-                <span class="hidden md:inline">Applicant Profile</span>
-            </button>
-            <button onclick="switchTab('jobs')" id="nav-jobs" class="tab-btn w-full flex items-center justify-center md:justify-start gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition-all">
-                <i class="fa-solid fa-magnifying-glass text-lg"></i>
-                <span class="hidden md:inline">Live Job Search</span>
-            </button>
-            <button onclick="switchTab('automation')" id="nav-automation" class="tab-btn w-full flex items-center justify-center md:justify-start gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition-all">
-                <i class="fa-solid fa-wand-magic-sparkles text-lg"></i>
-                <span class="hidden md:inline">Auto-Apply Assistant</span>
-            </button>
-            <button onclick="switchTab('telegram')" id="nav-telegram" class="tab-btn w-full flex items-center justify-center md:justify-start gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition-all">
-                <i class="fa-brands fa-telegram text-lg"></i>
-                <span class="hidden md:inline">Telegram Console</span>
-            </button>
-        </nav>
-        
-        <div class="p-4 border-t border-slate-800 hidden md:block bg-slate-900/20">
-            <div class="p-3 bg-indigo-950/40 border border-indigo-900/60 rounded-xl">
-                <div class="flex items-center gap-2 mb-1">
-                    <span class="text-xs bg-indigo-500/20 text-indigo-400 font-bold px-1.5 py-0.5 rounded">Local Execution</span>
-                </div>
-                <p class="text-[11px] text-slate-400">All configurations run safely within your local file environment.</p>
-            </div>
-        </div>
-    </aside>
-
-    <main class="flex-1 overflow-y-auto bg-slate-900/40 p-4 md:p-8">
-        
-        <section id="tab-dashboard" class="space-y-6">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold tracking-tight">System Status Overview</h2>
-                    <p class="text-sm text-slate-400">Track job hunting progress, active target portals, and easy helper bookmarklets.</p>
-                </div>
-                <button onclick="switchTab('jobs')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-xl text-sm transition-all flex items-center gap-2 shadow-lg shadow-indigo-500/10">
-                    <i class="fa-solid fa-play"></i> Start Live Search
-                </button>
-            </div>
-
-            <!-- Stats Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex items-center justify-between">
-                    <div>
-                        <p class="text-xs text-slate-400 font-medium">Applied Jobs</p>
-                        <h3 id="stat-applied-count" class="text-3xl font-extrabold mt-1 text-indigo-400">0</h3>
-                    </div>
-                    <div class="p-3 rounded-xl bg-indigo-500/10 text-indigo-400 text-xl"><i class="fa-solid fa-paper-plane"></i></div>
-                </div>
-                <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex items-center justify-between">
-                    <div>
-                        <p class="text-xs text-slate-400 font-medium">Portals Scanned</p>
-                        <h3 id="stat-portals-count" class="text-3xl font-extrabold mt-1 text-teal-400">4</h3>
-                    </div>
-                    <div class="p-3 rounded-xl bg-teal-500/10 text-teal-400 text-xl"><i class="fa-solid fa-circle-nodes"></i></div>
-                </div>
-                <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex items-center justify-between">
-                    <div>
-                        <p class="text-xs text-slate-400 font-medium">Compliance Guard</p>
-                        <h3 class="text-sm font-bold mt-1 text-emerald-400 flex items-center gap-1">
-                            <i class="fa-solid fa-shield-halved"></i> Active (&le; 10h/w)
-                        </h3>
-                    </div>
-                    <div class="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 text-xl"><i class="fa-solid fa-clock"></i></div>
-                </div>
-                <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex items-center justify-between">
-                    <div>
-                        <p class="text-xs text-slate-400 font-medium">Easy Apply Assist</p>
-                        <h3 class="text-sm font-semibold mt-1 text-purple-400 flex items-center gap-1.5">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i> Bookmarklet Ready
-                        </h3>
-                    </div>
-                    <div class="p-3 rounded-xl bg-purple-500/10 text-purple-400 text-xl"><i class="fa-solid fa-bookmark"></i></div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Applied Jobs Feed -->
-                <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 lg:col-span-2 flex flex-col h-[400px]">
-                    <div class="flex items-center justify-between mb-4 shrink-0">
-                        <h3 class="font-bold text-slate-200">Recent Automated Submissions</h3>
-                        <span class="text-xs text-slate-400">Auto-filled via helper & simulator</span>
-                    </div>
-                    <div id="applied-jobs-list" class="flex-1 overflow-y-auto space-y-3 pr-2">
-                        <!-- Dynamic job rows or empty state -->
-                        <div class="h-full flex flex-col items-center justify-center text-center text-slate-500">
-                            <div class="text-4xl mb-2"><i class="fa-solid fa-receipt"></i></div>
-                            <p class="text-sm">No auto-applied jobs yet.</p>
-                            <p class="text-xs max-w-sm">Use the Live Job Search panel, find a vacancy, and test the Auto-Apply automation step-by-step!</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Non-tech Easy Assistant Quick Access -->
-                <div class="bg-gradient-to-b from-indigo-950/40 to-slate-900/60 border border-indigo-900/40 rounded-2xl p-6 flex flex-col h-[400px] justify-between">
-                    <div>
-                        <h3 class="font-bold text-slate-200 mb-2 flex items-center gap-2">
-                            <i class="fa-solid fa-rocket text-indigo-400"></i> No-Tech 1-Click Apply
-                        </h3>
-                        <p class="text-xs text-slate-300 mb-4 leading-relaxed">
-                            No coding knowledge required! Save your details, drag the magical <strong>Bookmarklet</strong>, and fill out any German application form in exactly 1 click.
-                        </p>
-                        
-                        <div class="space-y-2.5">
-                            <div class="flex gap-2.5 text-xs bg-slate-950/80 p-3 rounded-xl border border-slate-800">
-                                <span class="bg-indigo-500/20 text-indigo-400 font-extrabold w-5 h-5 flex items-center justify-center rounded-full shrink-0">1</span>
-                                <p class="text-slate-300 text-[11px]">Set up your details on the <strong>Applicant Profile</strong> tab.</p>
-                            </div>
-                            <div class="flex gap-2.5 text-xs bg-slate-950/80 p-3 rounded-xl border border-slate-800">
-                                <span class="bg-indigo-500/20 text-indigo-400 font-extrabold w-5 h-5 flex items-center justify-center rounded-full shrink-0">2</span>
-                                <p class="text-slate-300 text-[11px]">Go to the <strong>Auto-Apply Assistant</strong> and drag the bookmark button up to your browser bookmarks bar.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <button onclick="switchTab('automation')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20">
-                        <i class="fa-solid fa-bookmark"></i> Get Magical Bookmarklet
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <section id="tab-profile" class="hidden space-y-6">
-            <div>
-                <h2 class="text-2xl font-bold tracking-tight">Applicant Profile Builder</h2>
-                <p class="text-sm text-slate-400">Define your local properties. These are kept private on your computer and stored in your browser's local sandbox.</p>
-            </div>
-
-            <form id="profile-form" onsubmit="saveProfile(event)" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Personal Info Column -->
-                <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4 lg:col-span-2">
-                    <h3 class="font-bold text-lg text-slate-200 border-b border-slate-800 pb-3"><i class="fa-solid fa-id-card text-indigo-400 mr-2"></i>Personal Metadata</h3>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">First Name</label>
-                            <input type="text" id="prof-firstname" value="Ahmed" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Last Name</label>
-                            <input type="text" id="prof-lastname" value="Henedy" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Email Address</label>
-                            <input type="email" id="prof-email" value="amdhenedy@gmail.com" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Phone Number</label>
-                            <input type="tel" id="prof-phone" value="+491608704473" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Date of Birth</label>
-                            <input type="date" id="prof-dob" value="1994-12-05" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-all font-mono">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Target Work Location (City)</label>
-                            <input type="text" id="prof-city" value="Gelsenkirchen" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-all">
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Home Address</label>
-                        <input type="text" id="prof-address" value="Rheinelbestrasse 14, 45886 Gelsenkirchen, Germany" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-all">
-                    </div>
-
-                    <!-- Curriculum Vitae / Cover letter -->
-                    <div class="mt-4">
-                        <div class="flex justify-between items-center mb-1.5">
-                            <label class="block text-xs font-semibold text-slate-400">Curriculum Vitae / Cover Letter Text</label>
-                            <button type="button" onclick="generateCoverLetter()" class="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
-                                <i class="fa-solid fa-magic"></i> Auto-Generate tailored to 10h Minijob
-                            </button>
-                        </div>
-                        <textarea id="prof-cvtext" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs font-mono text-slate-300 focus:outline-none focus:border-indigo-500 transition-all placeholder-slate-600" placeholder="Enter cover letter text details..."></textarea>
-                    </div>
-
-                    <!-- CV Upload Element (Requested feature) -->
-                    <div class="mt-4 bg-slate-950/40 p-4 border border-slate-800 rounded-xl space-y-3">
-                        <span class="block text-xs font-bold text-slate-300"><i class="fa-solid fa-paperclip text-indigo-400 mr-1.5"></i>Attach Your CV (PDF / Word)</span>
-                        <div class="flex flex-col md:flex-row items-center gap-4">
-                            <div class="w-full md:flex-1">
-                                <label class="flex flex-col items-center justify-center border border-dashed border-slate-700 hover:border-indigo-500 bg-slate-950 hover:bg-slate-900/50 p-4 rounded-xl cursor-pointer transition-all text-center">
-                                    <i class="fa-solid fa-cloud-arrow-up text-xl text-slate-400 mb-1" id="cv-upload-icon"></i>
-                                    <span class="text-xs font-semibold text-slate-300" id="cv-upload-text">Choose your CV file</span>
-                                    <span class="text-[10px] text-slate-500">Stored inside Local Web Storage</span>
-                                    <input type="file" id="prof-cvfile" class="hidden" accept=".pdf,.docx,.doc" onchange="handleCvUpload(event)">
-                                </label>
-                            </div>
-                            <!-- Upload Status Badge -->
-                            <div id="cv-status-container" class="hidden w-full md:flex-1 bg-slate-950 border border-indigo-950 p-3 rounded-xl flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <i class="fa-solid fa-file-pdf text-rose-500 text-lg"></i>
-                                    <div class="min-w-0">
-                                        <p id="cv-file-name" class="text-xs font-semibold text-slate-200 truncate max-w-[140px]">Resume_DE.pdf</p>
-                                        <p class="text-[10px] text-slate-400">Linked securely</p>
-                                    </div>
-                                </div>
-                                <button type="button" onclick="removeCvFile()" class="text-rose-400 hover:text-rose-300 p-1.5 hover:bg-slate-900 rounded shrink-0"><i class="fa-solid fa-trash-can"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="space-y-6">
-                    <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
-                        <h3 class="font-bold text-lg text-slate-200 border-b border-slate-800 pb-3"><i class="fa-solid fa-handshake-angle text-indigo-400 mr-2"></i>Job Preferences & Filters</h3>
-                        
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Strict Hours Cap / Week</label>
-                            <div class="flex items-center gap-3 bg-slate-950 p-3 rounded-xl border border-slate-800">
-                                <i class="fa-solid fa-clock text-indigo-400 text-lg"></i>
-                                <div class="flex-1">
-                                    <span class="text-sm font-bold text-slate-200">10 Hours Maximum</span>
-                                    <p class="text-[10px] text-slate-400">Exemption limit for full-time workers</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- German Language Selection Dropdown (requested) -->
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Your German Language Level</label>
-                            <select id="prof-german-level" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-all">
-                                <option value="A1">A1 (Beginner)</option>
-                                <option value="A2">A2 (Elementary)</option>
-                                <option value="B1" selected>B1 (Intermediate - standard)</option>
-                                <option value="B2">B2 (Upper Intermediate)</option>
-                                <option value="C1">C1 (Advanced)</option>
-                                <option value="C2">C2 / Native</option>
-                            </select>
-                        </div>
-
-                        <!-- Driving License Class B Selector (requested) -->
-                        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <i class="fa-solid fa-car text-indigo-400 text-lg"></i>
-                                <div>
-                                    <span class="text-xs font-semibold text-slate-200 block">Driving License (Class B)</span>
-                                    <p class="text-[10px] text-slate-400">If unchecked, delivery/courier jobs are excluded</p>
-                                </div>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer select-none">
-                                <input type="checkbox" id="prof-has-license" checked class="sr-only peer">
-                                <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                            </label>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Max Commute Radius (km)</label>
-                            <select id="prof-radius" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-all">
-                                <option value="5">5 km (Local vicinity)</option>
-                                <option value="10" selected>10 km (Standard local commute)</option>
-                                <option value="25">25 km (Includes nearby cities)</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Minijob Categories</label>
-                            <div class="grid grid-cols-2 gap-2 mt-1">
-                                <label class="flex items-center gap-2 bg-slate-950 p-2 rounded-lg border border-slate-800 text-xs text-slate-300 cursor-pointer">
-                                    <input type="checkbox" checked class="accent-indigo-500"> Retail / Helper
-                                </label>
-                                <label class="flex items-center gap-2 bg-slate-950 p-2 rounded-lg border border-slate-800 text-xs text-slate-300 cursor-pointer">
-                                    <input type="checkbox" checked class="accent-indigo-500"> Office
-                                </label>
-                                <label class="flex items-center gap-2 bg-slate-950 p-2 rounded-lg border border-slate-800 text-xs text-slate-300 cursor-pointer">
-                                    <input type="checkbox" checked class="accent-indigo-500"> Delivery
-                                </label>
-                                <label class="flex items-center gap-2 bg-slate-950 p-2 rounded-lg border border-slate-800 text-xs text-slate-300 cursor-pointer">
-                                    <input type="checkbox" checked class="accent-indigo-500"> Catering
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-indigo-950/20 border border-indigo-900/40 rounded-2xl p-6">
-                        <div class="flex items-center gap-3 text-indigo-400 mb-2">
-                            <i class="fa-solid fa-circle-info text-xl"></i>
-                            <h4 class="font-bold text-sm text-indigo-300">Local Validation Guard</h4>
-                        </div>
-                        <p class="text-xs text-slate-300 leading-relaxed">
-                            These profile values feed both your manual Bookmarklet auto-fills and visual automation run-throughs, ensuring complete safety.
-                        </p>
-                    </div>
-
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-lg shadow-indigo-500/10">
-                        Save Profile Parameters
-                    </button>
-                </div>
-            </form>
-        </section>
-
-        <section id="tab-jobs" class="hidden space-y-6">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold tracking-tight">Live Minijob Aggregator</h2>
-                    <p class="text-sm text-slate-400">Find real-time listings. Built-in filters eliminate older jobs and unmatched drivers or speakers.</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 space-y-6">
-                    <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1.5">Target Location / City</label>
-                                <div class="relative">
-                                    <i class="fa-solid fa-location-dot absolute left-4 top-3.5 text-slate-500"></i>
-                                    <input type="text" id="search-city" placeholder="e.g. Gelsenkirchen" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-all">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1.5">Keyword (Optional)</label>
-                                <div class="relative">
-                                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-500"></i>
-                                    <input type="text" id="search-keyword" placeholder="e.g., Office helper, Delivery" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-all">
-                                </div>
-                            </div>
-                            <div class="flex items-end">
-                                <button onclick="triggerJobSearch()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20">
-                                    <i class="fa-solid fa-circle-nodes"></i> Scan via Gemini Search
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Active exclusion details -->
-                    <div id="filter-exclusion-info" class="hidden bg-indigo-950/30 border border-indigo-900/60 rounded-xl p-4 flex items-center justify-between text-xs">
-                        <div class="flex items-center gap-2.5 text-slate-300">
-                            <i class="fa-solid fa-filter text-indigo-400"></i>
-                            <span>Exclusion Filter Active: Deleting posts &gt; 30 days old, lacking Class B license, or demanding higher German proficiency.</span>
-                        </div>
-                        <span id="excluded-counter-badge" class="bg-slate-900 text-slate-300 border border-slate-800 font-mono px-2.5 py-0.5 rounded-full font-bold">0 Jobs Excluded</span>
-                    </div>
-
-                    <div class="relative min-h-[300px]">
-                        <!-- Loading State -->
-                        <div id="search-loading" class="hidden absolute inset-0 bg-slate-950/80 rounded-2xl flex flex-col items-center justify-center text-center p-6 z-10 border border-slate-800">
-                            <div class="relative w-16 h-16 mb-4">
-                                <div class="absolute inset-0 rounded-full border-4 border-indigo-500/20 border-t-indigo-500 animate-spin"></div>
-                            </div>
-                            <h3 class="font-bold text-lg text-slate-200">Retrieving Live Job Matches</h3>
-                            <p id="search-progress-msg" class="text-xs text-indigo-400 mt-1 max-w-sm">Querying German portals & indexing micro-jobs...</p>
-                        </div>
-
-                        <!-- Grid -->
-                        <div id="job-results-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="md:col-span-2 bg-slate-900/40 border border-dashed border-slate-800 rounded-2xl p-12 text-center text-slate-500">
-                                <div class="text-5xl mb-3 text-slate-600"><i class="fa-solid fa-binoculars"></i></div>
-                                <h3 class="font-bold text-slate-300">Ready to Scan</h3>
-                                <p class="text-xs max-w-sm mx-auto mt-1">Select your target parameters, click scan, and filter out mismatched vacancies locally.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 flex flex-col h-fit justify-between space-y-4">
-                    <div>
-                        <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
-                            <h3 class="font-bold text-slate-200 flex items-center gap-2"><i class="fa-solid fa-circle-nodes text-indigo-400"></i> Portal Registry</h3>
-                            <span class="text-[10px] bg-indigo-500/15 text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded font-bold">Custom Registry</span>
-                        </div>
-                        <p class="text-xs text-slate-400 mb-4 leading-relaxed">Toggle the portals used during search index operations or add new custom links:</p>
-                        
-                        <div class="space-y-2.5" id="portals-list-container">
-                            <!-- Populated dynamically -->
-                        </div>
-                    </div>
-
-                    <div class="pt-4 border-t border-slate-800">
-                        <h4 class="text-xs font-bold text-slate-300 mb-2">Add Custom Job Portal</h4>
-                        <div class="space-y-2">
-                            <input type="text" id="new-portal-name" placeholder="Portal Name (e.g. Zenjob)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition-all">
-                            <input type="text" id="new-portal-url" placeholder="Search Link URL (https://...)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition-all font-mono">
-                            <button onclick="addCustomPortal()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 p-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5">
-                                <i class="fa-solid fa-plus text-[10px]"></i> Add Portal Target
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="tab-automation" class="hidden space-y-6">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold tracking-tight">Automated Application Assistant</h2>
-                    <p class="text-sm text-slate-400">Fill out any live job portal forms manually in exactly 1-click using your saved profile.</p>
-                </div>
-            </div>
-
-            <!-- Drag-and-drop Bookmarklet panel -->
-            <div class="bg-gradient-to-r from-indigo-950/40 via-purple-950/20 to-slate-900 border border-indigo-900/50 rounded-2xl p-6">
-                <div class="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
-                    <div class="space-y-2 max-w-2xl">
-                        <span class="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold px-2 py-0.5 rounded-full uppercase">Simplest Approach (100% Code-Free)</span>
-                        <h3 class="text-lg font-bold text-slate-200 flex items-center gap-2">
-                            <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i> The Minijob Auto-Fill Bookmarklet
-                        </h3>
-                        <p class="text-xs text-slate-300 leading-relaxed">
-                            Drag the button on the right into your web browser's bookmarks bar. When you are visiting any online job application form (like Indeed, eBay Kleinanzeigen, etc.), simply click it! It will automatically detect input fields and fill in your name, contact details, date of birth, cover letter, and explicitly assert that you are restricted to <strong class="text-indigo-400">10 hours max</strong> per week!
-                        </p>
-                    </div>
-
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 flex flex-col items-center shrink-0 w-full md:w-auto">
-                        <a id="magical-bookmarklet-link" href="#" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold px-5 py-3 rounded-xl text-xs transition-all flex items-center gap-2 shadow-lg shadow-indigo-500/20 cursor-move border border-indigo-400/40 select-none">
-                            <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i> Drag Me to Bookmarks
-                        </a>
-                        <span class="text-[10px] text-slate-400 mt-2 text-center flex items-center gap-1">
-                            <i class="fa-solid fa-hand-pointer text-indigo-400 animate-bounce"></i> Drag this up to your bookmarks bar!
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Browser Simulator -->
-                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col h-[500px]">
-                    <div class="bg-slate-950 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-rose-500"></span>
-                            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
-                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-                        </div>
-                        <div class="bg-slate-900 border border-slate-800 rounded-lg px-4 py-1 text-xs text-slate-400 font-mono w-72 truncate text-center">
-                            <span class="text-emerald-500">https://</span><span id="simulator-url">jobs.example-portal.de/apply</span>
-                        </div>
-                        <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded uppercase font-bold font-mono">Simulator</span>
-                    </div>
-
-                    <div id="simulated-browser-frame" class="flex-1 bg-slate-950 p-6 flex flex-col justify-center items-center relative overflow-hidden">
-                        <!-- Idle State -->
-                        <div id="sim-idle-state" class="text-center text-slate-500">
-                            <div class="text-5xl mb-3 text-slate-600 animate-bounce"><i class="fa-solid fa-compass"></i></div>
-                            <h4 class="font-bold text-slate-300">Simulator Idle</h4>
-                            <p class="text-xs max-w-sm mt-1">Select a job card from the <span class="text-indigo-400">Live Job Search</span> page and click <strong class="text-slate-300">Auto-Apply</strong> to start the step-by-step automated workflow demo.</p>
-                        </div>
-
-                        <!-- Simulator active state -->
-                        <div id="sim-active-container" class="hidden w-full max-w-md bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-2xl relative z-10 space-y-4">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                                <div>
-                                    <h4 id="sim-job-title" class="font-bold text-slate-200 text-sm">Retail Associate Minijob</h4>
-                                    <p id="sim-company" class="text-xs text-slate-400">Rewe GmbH</p>
-                                </div>
-                                <span class="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded font-bold uppercase">Form Sandbox</span>
-                            </div>
-
-                            <div class="space-y-3 text-xs">
-                                <div class="flex items-center justify-between bg-slate-950 p-2.5 rounded-lg border border-slate-800" id="field-name">
-                                    <span class="text-slate-400">Full Name</span>
-                                    <span class="font-mono text-indigo-400" id="val-name">---</span>
-                                </div>
-                                <div class="flex items-center justify-between bg-slate-950 p-2.5 rounded-lg border border-slate-800" id="field-email">
-                                    <span class="text-slate-400">Email Address</span>
-                                    <span class="font-mono text-indigo-400" id="val-email">---</span>
-                                </div>
-                                <div class="flex items-center justify-between bg-slate-950 p-2.5 rounded-lg border border-slate-800" id="field-cv">
-                                    <span class="text-slate-400">CV File</span>
-                                    <span class="font-mono text-indigo-400" id="val-cv">---</span>
-                                </div>
-                                <div class="flex items-center justify-between bg-slate-950 p-2.5 rounded-lg border border-indigo-900 bg-indigo-950/20" id="field-hours">
-                                    <span class="text-slate-300 font-bold flex items-center gap-1">
-                                        <i class="fa-solid fa-shield-halved text-emerald-400"></i> Max Hours Limit
-                                    </span>
-                                    <span class="font-mono text-emerald-400 font-bold" id="val-hours">Validated &le; 10h/week</span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-between bg-slate-950 p-3 rounded-lg border border-slate-800 mt-2">
-                                <span class="text-xs text-slate-400 flex items-center gap-1.5">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 pulse-active"></span>
-                                    <span id="step-label">Initializing automation...</span>
-                                </span>
-                                <span id="step-count" class="text-xs font-mono text-indigo-400">1/6</span>
-                            </div>
-                        </div>
-
-                        <div id="sim-progress-bar" class="hidden absolute bottom-0 left-0 h-1 bg-indigo-500 transition-all duration-300" style="width: 0%;"></div>
-                    </div>
-                </div>
-
-                <!-- Console trace logs -->
-                <div class="bg-slate-950 border border-slate-800 rounded-2xl flex flex-col h-[500px]">
-                    <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center shrink-0">
-                        <span class="text-xs font-bold font-mono tracking-wider uppercase text-slate-400">Local Console Logs</span>
-                        <div class="flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            <span class="text-[10px] font-mono text-slate-300 uppercase">Interactive Shell</span>
-                        </div>
-                    </div>
-                    <div id="terminal-logs" class="flex-1 overflow-y-auto p-4 code-font text-xs text-indigo-300 space-y-1.5 leading-relaxed selection:bg-indigo-500/30">
-                        <div class="text-slate-500">⚡ Console trace outputs will generate during simulator execution. Ready to listen...</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="tab-telegram" class="hidden space-y-6">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold tracking-tight">Telegram Bot Shell</h2>
-                    <p class="text-sm text-slate-400">Simulate Telegram chat behaviors locally or copy the pre-built backend deployment script.</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Sandbox chat client (Left) -->
-                <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col h-[520px]">
-                    <div class="bg-indigo-900/30 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-brands fa-telegram text-indigo-400 text-lg"></i>
-                            <span class="text-sm font-bold text-slate-200">GermanMinijobBot</span>
-                        </div>
-                        <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-bold font-mono">Sandbox Client</span>
-                    </div>
-
-                    <div id="telegram-chat-area" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-950 flex flex-col">
-                        <div class="flex gap-2 text-xs">
-                            <div class="w-7 h-7 rounded-full bg-indigo-600 shrink-0 flex items-center justify-center text-white font-bold text-[10px]">MJ</div>
-                            <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl max-w-[80%] rounded-tl-none">
-                                <p class="text-slate-300 leading-relaxed">Willkommen! I am your <strong>Minijob Bot</strong>.</p>
-                                <p class="text-slate-400 text-[11px] mt-1">Available commands:<br>
-                                <span class="font-mono text-indigo-400">/scan [city]</span> - Scans local jobs via grounding<br>
-                                <span class="font-mono text-indigo-400">/apply [job_id]</span> - Auto-Applies with saved profile details<br>
-                                <span class="font-mono text-indigo-400">/status</span> - Verifies hours cap & profile specifications</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <form onsubmit="sendSimulatedTelegramMessage(event)" class="p-3 border-t border-slate-800 bg-slate-900/50 flex gap-2 shrink-0">
-                        <input type="text" id="tg-msg-input" placeholder="Type /scan Gelsenkirchen or /status..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition-all">
-                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white p-2.5 px-4 rounded-xl text-xs font-semibold transition-all">Send</button>
-                    </form>
-                </div>
-
-                <!-- Ready Code Node panel (Right) -->
-                <div class="lg:col-span-7 bg-slate-950 border border-slate-800 rounded-2xl flex flex-col h-[520px]">
-                    <div class="p-4 border-b border-slate-800 bg-slate-900/30 flex justify-between items-center shrink-0">
-                        <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-code text-indigo-400 mr-2"></i>Copy Node.js Bot Source Code</span>
-                        <button onclick="copyBotCodeToClipboard()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-1.5 px-3 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all">
-                            <i class="fa-regular fa-copy"></i> Copy File
-                        </button>
-                    </div>
-                    <div class="flex-1 overflow-y-auto p-4 code-font text-xs text-slate-300">
-                        <p class="text-slate-400 mb-3">// Local execution configuration script. Uses Playwright & Telegraf bot library. Save on your local machine or server as <span class="text-indigo-400">bot.js</span></p>
-                        <pre id="bot-code-preview" class="select-all text-slate-200 leading-relaxed"></pre>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-    </main>
-</div>
-
-<!-- API configurations -->
-<div id="apikey-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur flex items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-            <h3 class="font-bold text-lg text-slate-200"><i class="fa-solid fa-key text-indigo-400 mr-2"></i>Gemini API Key Setup</h3>
-            <button onclick="toggleApiKeyModal()" class="text-slate-500 hover:text-slate-300 text-lg"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        
-        <p class="text-xs text-slate-400 leading-relaxed">
-            By default, search indexes utilize local cached matches. Input your private Gemini API Key below to run live, grounded search operations against real German vacancy portals.
-        </p>
-
-        <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Your Gemini API Key</label>
-            <input type="password" id="gemini-api-key-input" placeholder="AIzaSy..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition-all font-mono">
-        </div>
-
-        <div class="flex justify-end gap-2 pt-2">
-            <button onclick="toggleApiKeyModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold transition-all">Cancel</button>
-            <button onclick="saveApiKey()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition-all">Save Key</button>
-        </div>
-    </div>
-</div>
-
-<!-- Toast Overlay notifications -->
-<div id="toast-notif" class="fixed bottom-6 right-6 bg-slate-900 border border-slate-800 px-4 py-3 rounded-xl shadow-2xl z-50 text-xs font-semibold flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300">
-    <i class="fa-solid fa-circle-check text-emerald-400"></i>
-    <span id="toast-text">Success message here</span>
-</div>
-
-<script>
-    // Local-First Application State Storage
-    let state = {
-        apiKey: localStorage.getItem('gemini_api_key') || '',
-        appliedJobs: JSON.parse(localStorage.getItem('applied_jobs')) || [],
-        foundJobs: [],
-        excludedCount: 0,
-        profile: JSON.parse(localStorage.getItem('applicant_profile')) || {
-            firstName: "Ahmed",
-            lastName: "Henedy",
-            email: "amdhenedy@gmail.com",
-            phone: "+491608704473",
-            dob: "1994-12-05",
-            city: "Gelsenkirchen",
-            address: "Rheinelbestrasse 14, 45886 Gelsenkirchen, Germany",
-            cvText: "",
-            commuteRadius: "10",
-            maxHours: 10,
-            germanLevel: "B1",
-            hasDrivingLicense: true,
-            cvFileName: ""
-        },
-        portals: JSON.parse(localStorage.getItem('search_portals')) || [
-            { name: "Indeed Germany", url: "https://de.indeed.com", active: true },
-            { name: "eBay Kleinanzeigen", url: "https://www.kleinanzeigen.de", active: true },
-            { name: "Minijob-Zentrale", url: "https://www.minijob-zentrale.de", active: true },
-            { name: "StepStone", url: "https://www.stepstone.de", active: false }
-        ]
-    };
-
-    // German Language level mapping
-    const GERMAN_LEVELS = { "A1": 1, "A2": 2, "B1": 3, "B2": 4, "C1": 5, "C2": 6 };
-
-    window.onload = function() {
-        loadProfileDataIntoForm();
-        renderAppliedJobs();
-        renderPortals();
-        generateBookmarklet();
-        generateBotCode();
-        if (state.profile.cvText === "") {
-            generateCoverLetter();
-        }
-        document.getElementById('gemini-api-key-input').value = state.apiKey;
-    };
-
-    function switchTab(tabId) {
-        document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
-        document.querySelectorAll('.tab-btn').forEach(el => {
-            el.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg', 'shadow-indigo-500/10');
-            el.classList.add('text-slate-400', 'hover:text-slate-200', 'hover:bg-slate-900');
-        });
-
-        document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-        const activeNav = document.getElementById(`nav-${tabId}`);
-        if (activeNav) {
-            activeNav.classList.remove('text-slate-400', 'hover:text-slate-200', 'hover:bg-slate-900');
-            activeNav.classList.add('bg-indigo-600', 'text-white', 'shadow-lg', 'shadow-indigo-500/10');
-        }
-    }
-
-    function toggleApiKeyModal() {
-        document.getElementById('apikey-modal').classList.toggle('hidden');
-    }
-
-    function saveApiKey() {
-        const key = document.getElementById('gemini-api-key-input').value.trim();
-        state.apiKey = key;
-        localStorage.setItem('gemini_api_key', key);
-        toggleApiKeyModal();
-        showToast("Gemini Local configurations stored successfully!");
-        generateBotCode();
-    }
-
-    // Toast alert triggers
-    function showToast(text, isError = false) {
-        const toast = document.getElementById('toast-notif');
-        const icon = toast.querySelector('i');
-        const span = document.getElementById('toast-text');
-        
-        span.innerText = text;
-        if (isError) {
-            icon.className = 'fa-solid fa-triangle-exclamation text-rose-500';
-            toast.className = 'fixed bottom-6 right-6 bg-slate-900 border border-rose-900/50 px-4 py-3 rounded-xl shadow-2xl z-50 text-xs font-semibold flex items-center gap-2 transform translate-y-0 opacity-100 transition-all duration-300';
-        } else {
-            icon.className = 'fa-solid fa-circle-check text-emerald-400';
-            toast.className = 'fixed bottom-6 right-6 bg-slate-900 border border-slate-800 px-4 py-3 rounded-xl shadow-2xl z-50 text-xs font-semibold flex items-center gap-2 transform translate-y-0 opacity-100 transition-all duration-300';
-        }
-
-        setTimeout(() => {
-            toast.classList.add('opacity-0', 'translate-y-20');
-        }, 4000);
-    }
-
-    function handleCvUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        state.profile.cvFileName = file.name;
-        localStorage.setItem('applicant_profile', JSON.stringify(state.profile));
-        
-        updateCvUI();
-        showToast(`Document "${file.name}" linked safely!`);
-        generateBookmarklet();
-        generateBotCode();
-    }
-
-    function removeCvFile() {
-        state.profile.cvFileName = "";
-        localStorage.setItem('applicant_profile', JSON.stringify(state.profile));
-        
-        updateCvUI();
-        document.getElementById('prof-cvfile').value = "";
-        showToast("CV link removed.", true);
-        generateBookmarklet();
-        generateBotCode();
-    }
-
-    function updateCvUI() {
-        const container = document.getElementById('cv-status-container');
-        const labelText = document.getElementById('cv-upload-text');
-        const icon = document.getElementById('cv-upload-icon');
-        const fileNameEl = document.getElementById('cv-file-name');
-
-        if (state.profile.cvFileName) {
-            container.classList.remove('hidden');
-            fileNameEl.innerText = state.profile.cvFileName;
-            labelText.innerText = "CV Attached Locally";
-            icon.className = "fa-solid fa-file-circle-check text-xl text-emerald-400 mb-1";
-        } else {
-            container.classList.add('hidden');
-            labelText.innerText = "Choose your CV file";
-            icon.className = "fa-solid fa-cloud-arrow-up text-xl text-slate-400 mb-1";
-        }
-    }
-
-    function loadProfileDataIntoForm() {
-        document.getElementById('prof-firstname').value = state.profile.firstName || "Ahmed";
-        document.getElementById('prof-lastname').value = state.profile.lastName || "Henedy";
-        document.getElementById('prof-email').value = state.profile.email || "amdhenedy@gmail.com";
-        document.getElementById('prof-phone').value = state.profile.phone || "+491608704473";
-        document.getElementById('prof-dob').value = state.profile.dob || "1994-12-05";
-        document.getElementById('prof-city').value = state.profile.city || "Gelsenkirchen";
-        document.getElementById('prof-address').value = state.profile.address || "Rheinelbestrasse 14, 45886 Gelsenkirchen, Germany";
-        document.getElementById('prof-cvtext').value = state.profile.cvText || "";
-        document.getElementById('prof-radius').value = state.profile.commuteRadius || "10";
-        document.getElementById('search-city').value = state.profile.city || "Gelsenkirchen";
-        document.getElementById('prof-german-level').value = state.profile.germanLevel || "B1";
-        document.getElementById('prof-has-license').checked = state.profile.hasDrivingLicense !== false;
-        
-        updateCvUI();
-    }
-
-    function saveProfile(event) {
-        event.preventDefault();
-        state.profile = {
-            firstName: document.getElementById('prof-firstname').value,
-            lastName: document.getElementById('prof-lastname').value,
-            email: document.getElementById('prof-email').value,
-            phone: document.getElementById('prof-phone').value,
-            dob: document.getElementById('prof-dob').value,
-            city: document.getElementById('prof-city').value,
-            address: document.getElementById('prof-address').value,
-            cvText: document.getElementById('prof-cvtext').value,
-            commuteRadius: document.getElementById('prof-radius').value,
-            germanLevel: document.getElementById('prof-german-level').value,
-            hasDrivingLicense: document.getElementById('prof-has-license').checked,
-            cvFileName: state.profile.cvFileName || "",
-            maxHours: 10
-        };
-        localStorage.setItem('applicant_profile', JSON.stringify(state.profile));
-        showToast("Profile configurations updated locally!");
-        generateBookmarklet();
-        generateBotCode();
-    }
-
-    function generateCoverLetter() {
-        const fName = document.getElementById('prof-firstname').value || "Ahmed";
-        const lName = document.getElementById('prof-lastname').value || "Henedy";
-        const city = document.getElementById('prof-city').value || "Gelsenkirchen";
-        
-        const template = `Sehr geehrte Damen und Herren,
-
-ich bewerbe mich hiermit um die ausgeschriebene Minijob-Stelle in Ihrem Unternehmen im Raum ${city}.
-
-Da ich bereits in Vollzeit berufstätig bin, suche ich eine flexible Beschäftigung auf Minijob-Basis (geringfügige Beschäftigung), die zeitlich genau auf maximal 10 Stunden pro Woche begrenzt ist. 
-
-Durch meine hohe Flexibilität an den Wochenenden und Abendstunden kann ich Ihr Team zuverlässig unterstützen. Ich bin motiviert, pünktlich und freue mich auf Ihre Rückmeldung.
-
-Mit freundlichen Grüßen,
-${fName} ${lName}`;
-
-        document.getElementById('prof-cvtext').value = template;
-        state.profile.cvText = template;
-        generateBookmarklet();
-    }
-
-    function renderPortals() {
-        const container = document.getElementById('portals-list-container');
-        container.innerHTML = '';
-        
-        document.getElementById('stat-portals-count').innerText = state.portals.filter(p => p.active).length;
-
-        state.portals.forEach((p, idx) => {
-            const item = document.createElement('div');
-            item.className = "flex items-center justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-xs";
-            item.innerHTML = `
-                <div class="flex items-center gap-2.5">
-                    <button onclick="togglePortal(${idx})" class="text-lg transition-all ${p.active ? 'text-indigo-400 hover:text-indigo-500' : 'text-slate-600 hover:text-slate-500'}">
-                        <i class="fa-solid ${p.active ? 'fa-square-check' : 'fa-square'}"></i>
-                    </button>
-                    <div>
-                        <span class="font-bold block text-slate-200">${p.name}</span>
-                        <span class="text-[9px] text-slate-500 truncate max-w-[150px] block">${p.url}</span>
-                    </div>
-                </div>
-                ${idx > 3 ? `<button onclick="deletePortal(${idx})" class="text-slate-500 hover:text-rose-400 p-1"><i class="fa-regular fa-trash-can"></i></button>` : ''}
-            `;
-            container.appendChild(item);
-        });
-    }
-
-    function togglePortal(index) {
-        state.portals[index].active = !state.portals[index].active;
-        localStorage.setItem('search_portals', JSON.stringify(state.portals));
-        renderPortals();
-    }
-
-    function addCustomPortal() {
-        const nameInput = document.getElementById('new-portal-name');
-        const urlInput = document.getElementById('new-portal-url');
-        
-        const name = nameInput.value.trim();
-        const url = urlInput.value.trim();
-
-        if (!name || !url) {
-            showToast("Supply both a name and target URL link.", true);
-            return;
-        }
-
-        state.portals.push({ name, url, active: true });
-        localStorage.setItem('search_portals', JSON.stringify(state.portals));
-        
-        nameInput.value = '';
-        urlInput.value = '';
-        renderPortals();
-        showToast(`Registered "${name}" to search options.`);
-    }
-
-    function deletePortal(index) {
-        state.portals.splice(index, 1);
-        localStorage.setItem('search_portals', JSON.stringify(state.portals));
-        renderPortals();
-        showToast("Custom search portal link deleted.");
-    }
-
-    function isJobOlderThanAMonth(postedStr) {
-        if (!postedStr) return false;
-        const normalized = postedStr.toLowerCase().trim();
-        
-        if (normalized.includes('month') || normalized.includes('monat') || normalized.includes('30+ day') || normalized.includes('35 day') || normalized.includes('40 day') || normalized.includes('4 week') || normalized.includes('5 week')) {
-            return true;
-        }
-
-        const dateMatch = normalized.match(/(\d{4})-(\d{2})-(\d{2})/);
-        if (dateMatch) {
-            const today = new Date('2026-06-11');
-            const postedDate = new Date(dateMatch[1], dateMatch[2] - 1, dateMatch[3]);
-            const diffTime = Math.abs(today - postedDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            if (diffDays > 30) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    function isLanguageCompetent(requiredLevel) {
-        const userLevel = state.profile.germanLevel || "B1";
-        if (!requiredLevel) return true;
-        
-        const userRank = GERMAN_LEVELS[userLevel] || 3;
-        const jobRank = GERMAN_LEVELS[requiredLevel] || 1;
-        
-        return userRank >= jobRank;
-    }
-
-    // Trigger local grounded search against Gemini API
-    async function triggerJobSearch() {
-        const city = document.getElementById('search-city').value.trim();
-        const keyword = document.getElementById('search-keyword').value.trim();
-        
-        if (!city) {
-            showToast("Please specify a city location!", true);
-            return;
-        }
-
-        const loader = document.getElementById('search-loading');
-        loader.classList.remove('hidden');
-        
-        const textProgress = document.getElementById('search-progress-msg');
-        textProgress.innerText = `Searching jobs in ${city} via Google Search grounding...`;
-
-        try {
-            const systemPrompt = `You are an automated scraping crawler that retrieves active open MINIJJOB vacancies in Germany. Limit matches to those that accommodate part-time or max 10 hours per week (geringfügige Beschäftigung). Output exactly a valid JSON array matching the structure. Do not surround with markdown block formatting except JSON itself. Today's date is June 11, 2026.`;
-            const userQuery = `Find exactly 6 authentic, open Minijobs vacancies currently recruiting in ${city} ${keyword ? 'related to ' + keyword : ''}, Germany. Return realistic URLs for application. Also identify when the job was posted, if it requires Class B driving license, and required German Level.`;
-            
-            const apiKey = state.apiKey;
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-
-            const payload = {
-                contents: [{ parts: [{ text: userQuery }] }],
-                tools: [{ "google_search": {} }],
-                systemInstruction: {
-                    parts: [{ text: systemPrompt }]
-                },
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "ARRAY",
-                        items: {
-                            type: "OBJECT",
-                            properties: {
-                                title: { type: "STRING" },
-                                company: { type: "STRING" },
-                                location: { type: "STRING" },
-                                hours: { type: "STRING" },
-                                summary: { type: "STRING" },
-                                applyUrl: { type: "STRING" },
-                                postedDate: { type: "STRING" },
-                                requiresDrivingLicense: { type: "BOOLEAN" },
-                                requiredGermanLevel: { type: "STRING", description: "One of: A1, A2, B1, B2, C1, C2" }
-                            },
-                            required: ["title", "company", "location", "hours", "summary", "applyUrl", "postedDate", "requiresDrivingLicense", "requiredGermanLevel"]
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            500: '#3b82f6',
+                            600: '#2563eb',
                         }
                     }
                 }
-            };
-
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            const result = await response.json();
-            const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-            
-            if (jsonText) {
-                const parsedJobs = JSON.parse(jsonText);
-                if (Array.isArray(parsedJobs) && parsedJobs.length > 0) {
-                    processAndFilterJobs(parsedJobs);
-                } else {
-                    useMockedBackup(city, keyword);
-                }
-            } else {
-                useMockedBackup(city, keyword);
             }
-
-        } catch (err) {
-            console.warn("API Grounded search failed or was rate limited. Displaying local cached matches...", err);
-            useMockedBackup(city, keyword);
-        } finally {
-            loader.classList.add('hidden');
         }
-    }
-
-    // Filter results using rules
-    function processAndFilterJobs(allJobs) {
-        state.excludedCount = 0;
-        
-        const finalMatches = allJobs.filter(job => {
-            // Age limit check (> 30 days old)
-            if (isJobOlderThanAMonth(job.postedDate)) {
-                state.excludedCount++;
-                return false;
-            }
-
-            // Driver license matching
-            if (job.requiresDrivingLicense && !state.profile.hasDrivingLicense) {
-                state.excludedCount++;
-                return false;
-            }
-
-            // German competency requirements check
-            if (!isLanguageCompetent(job.requiredGermanLevel)) {
-                state.excludedCount++;
-                return false;
-            }
-
-            return true;
-        });
-
-        state.foundJobs = finalMatches;
-        renderJobCards();
-        
-        const filterPanel = document.getElementById('filter-exclusion-info');
-        const badge = document.getElementById('excluded-counter-badge');
-        
-        filterPanel.classList.remove('hidden');
-        badge.innerText = `${state.excludedCount} Postings Excluded`;
-        
-        showToast(`Scan complete. ${finalMatches.length} matching jobs matched.`);
-    }
-
-    // Mock Backup data
-    function useMockedBackup(city, keyword) {
-        const safeCity = city || "Gelsenkirchen";
-        
-        const rawMockPool = [
-            {
-                title: "Warenverräumer (m/w/d) Minijob",
-                company: "Rewe Markt GmbH",
-                location: `${safeCity}, Germany`,
-                hours: "Up to 8.5 hours / week",
-                summary: "Regalpflege und Warenpräsentation in den Abendstunden. Perfekt koordinierbar mit Ihrem Hauptberuf.",
-                applyUrl: `https://karriere.rewe.de/minijob-gelsenkirchen`,
-                postedDate: "2026-06-08",
-                requiresDrivingLicense: false,
-                requiredGermanLevel: "A2"
-            },
-            {
-                title: "Bürohilfe / administrative Unterstützung",
-                company: "Kanzlei Dr. Becker & Partner",
-                location: `${safeCity} Stadtmitte`,
-                hours: "flexible 10 Std./Woche (2x 5 Std.)",
-                summary: "Dokumentenpflege, Digitalisierung, einfache Korrespondenz. Vollzeit-Hauptbeschäftigung absolut kein Hindernis.",
-                applyUrl: `https://becker-partner-kanzlei.de/jobs`,
-                postedDate: "2026-06-01",
-                requiresDrivingLicense: false,
-                requiredGermanLevel: "B2"
-            },
-            {
-                title: "Kurierfahrer / Auslieferer (m/w/d)",
-                company: "Flaschenpost SE",
-                location: `${safeCity} und Umgebung`,
-                hours: "Bis max. 10 Std./Woche am Samstag",
-                summary: "Auslieferung von Getränken per Transporter. Samstags-Einsatz kollidiert nicht mit regulärer 40-Stunden-Arbeitswoche.",
-                applyUrl: `https://flaschenpost.de/career`,
-                postedDate: "2026-06-09",
-                requiresDrivingLicense: true,
-                requiredGermanLevel: "B1"
-            },
-            {
-                title: "Aushilfe Kasse & Kundenberatung",
-                company: "Decathlon Deutschland",
-                location: `Hafen Graf Bismarck, ${safeCity}`,
-                hours: "9.5 Std. / Woche flexibel",
-                summary: "Unterstützung an den Kassen am Freitagnachmittag oder Samstag. Sportbegeisterung erwünscht.",
-                applyUrl: `https://decathlon-karriere.de/gelsenkirchen`,
-                postedDate: "2026-06-04",
-                requiresDrivingLicense: false,
-                requiredGermanLevel: "B1"
-            },
-            {
-                title: "Archived Inventory Assistant",
-                company: "Alt-Kaufhaus Gelsenkirchen",
-                location: `${safeCity}`,
-                hours: "8 Std. / Woche",
-                summary: "Temporary listing for inventory reconciliation.",
-                applyUrl: `https://example-portals.de/expired`,
-                postedDate: "2026-04-10",
-                requiresDrivingLicense: false,
-                requiredGermanLevel: "A1"
-            }
-        ];
-
-        let filtered = rawMockPool;
-        if (keyword) {
-            filtered = rawMockPool.filter(j => j.title.toLowerCase().includes(keyword.toLowerCase()) || j.summary.toLowerCase().includes(keyword.toLowerCase()));
-            if (filtered.length === 0) filtered = rawMockPool;
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-
-        processAndFilterJobs(filtered);
-    }
-
-    function renderJobCards() {
-        const grid = document.getElementById('job-results-grid');
-        grid.innerHTML = '';
-
-        if (state.foundJobs.length === 0) {
-            grid.innerHTML = `
-                <div class="md:col-span-2 bg-slate-900/40 border border-dashed border-slate-800 rounded-2xl p-12 text-center text-slate-500">
-                    <div class="text-5xl mb-3 text-slate-600"><i class="fa-solid fa-face-frown"></i></div>
-                    <h3 class="font-bold text-slate-300">No Job matches found</h3>
-                    <p class="text-xs max-w-sm mx-auto mt-1">Try toggling driving license requirements, updating your German level, or checking nearby locations.</p>
-                </div>
-            `;
-            return;
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
         }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen font-sans antialiased flex flex-col">
 
-        state.foundJobs.forEach((job, index) => {
-            const card = document.createElement('div');
-            card.className = "bg-slate-900/80 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-slate-700 transition-all hover:translate-y-[-2px] duration-300";
-            
-            let formattedDate = job.postedDate;
-            if (job.postedDate && job.postedDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                const pDate = new Date(job.postedDate);
-                const rDiff = Math.ceil(Math.abs(new Date('2026-06-11') - pDate) / (1000 * 60 * 60 * 24));
-                formattedDate = rDiff === 0 ? "Today" : rDiff === 1 ? "Yesterday" : `${rDiff} days ago`;
-            }
-
-            card.innerHTML = `
-                <div>
-                    <div class="flex items-start justify-between gap-3 mb-2">
-                        <span class="text-[10px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-full uppercase">Minijob</span>
-                        <span class="text-xs text-slate-400 font-medium flex items-center gap-1">
-                            <i class="fa-solid fa-clock text-slate-500"></i> ${job.hours}
-                        </span>
-                    </div>
-                    <h4 class="font-bold text-slate-200 text-base leading-tight">${job.title}</h4>
-                    <p class="text-xs text-indigo-400 font-semibold mt-1">${job.company}</p>
-                    <p class="text-xs text-slate-400 mt-0.5"><i class="fa-solid fa-location-dot text-[10px] text-slate-500"></i> ${job.location}</p>
-                    <p class="text-xs text-slate-300 mt-3 line-clamp-3">${job.summary}</p>
-                    
-                    <div class="flex flex-wrap gap-2 mt-4">
-                        <span class="bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg text-[10px] text-slate-400 font-mono">
-                            <i class="fa-solid fa-calendar text-indigo-400 mr-1"></i> ${formattedDate}
-                        </span>
-                        <span class="bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg text-[10px] text-slate-400 font-mono">
-                            <i class="fa-solid fa-language text-teal-400 mr-1"></i> German: ${job.requiredGermanLevel || "A1"}
-                        </span>
-                        <span class="bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg text-[10px] text-slate-400 font-mono">
-                            <i class="fa-solid fa-car text-amber-400 mr-1"></i> Driving License: ${job.requiresDrivingLicense ? 'Required' : 'No'}
-                        </span>
-                    </div>
+    <!-- Top Navigation & Search Bar -->
+    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-10 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col xl:flex-row items-center justify-between gap-6">
+                <!-- Logo/Title -->
+                <div class="flex items-center gap-3 w-full xl:w-auto">
+                    <svg class="w-8 h-8 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <h1 class="text-2xl font-bold tracking-tight text-white">Minijob<span class="text-brand-500">Radar</span></h1>
                 </div>
 
-                <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
-                    <a href="${job.applyUrl}" target="_blank" class="text-xs text-slate-400 hover:text-slate-200 underline truncate max-w-[150px]">
-                        Link to portal <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-                    </a>
-                    <button onclick="startApplySimulation(${index})" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1.5 shrink-0 shadow-md">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Apply
+                <!-- Search Controls -->
+                <div class="flex flex-col md:flex-row items-center gap-4 w-full xl:w-auto flex-1 justify-end">
+                    <!-- Keyword Input -->
+                    <div class="relative w-full md:w-48 lg:w-64">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input type="text" id="keywordInput" placeholder="Keywords (e.g. B1, English)..." class="block w-full pl-9 pr-3 py-2 border border-slate-600 rounded-lg leading-5 bg-slate-900 text-slate-300 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition-colors">
+                    </div>
+
+                    <!-- City Input -->
+                    <div class="relative w-full md:w-48 lg:w-64">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        </div>
+                        <input type="text" id="cityInput" placeholder="City or Postal Code..." value="Gelsenkirchen" class="block w-full pl-9 pr-3 py-2 border border-slate-600 rounded-lg leading-5 bg-slate-900 text-slate-300 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition-colors">
+                    </div>
+
+                    <!-- Radius Slider -->
+                    <div class="flex items-center gap-3 w-full md:w-auto bg-slate-900 px-4 py-2 rounded-lg border border-slate-600">
+                        <label for="radiusInput" class="text-sm font-medium text-slate-300 whitespace-nowrap">Radius:</label>
+                        <input type="range" id="radiusInput" min="0" max="100" value="10" class="w-24 accent-brand-500">
+                        <span id="radiusValue" class="text-sm font-bold text-brand-500 w-12 text-right">10 km</span>
+                    </div>
+
+                    <button id="searchBtn" class="w-full md:w-auto flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-6 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-brand-500">
+                        <svg class="w-4 h-4 hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        Search
                     </button>
                 </div>
-            `;
-            grid.appendChild(card);
+            </div>
+
+            <!-- Quick Filters -->
+            <div class="mt-5 flex flex-wrap items-center gap-2 text-sm">
+                <span class="text-slate-400 font-medium mr-1">Requirements:</span>
+                <!-- API Filters (must contain) -->
+                <button type="button" class="quick-filter-btn px-3 py-1 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-full text-slate-300 transition-colors" data-type="api" data-val="A2">A2 German</button>
+                <button type="button" class="quick-filter-btn px-3 py-1 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-full text-slate-300 transition-colors" data-type="api" data-val="B1">B1 German</button>
+                <button type="button" class="quick-filter-btn px-3 py-1 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-full text-slate-300 transition-colors" data-type="api" data-val="English">English</button>
+                <span class="text-slate-500 mx-1">|</span>
+                <!-- Client-side Filters (exclude) -->
+                <button type="button" class="quick-filter-btn px-3 py-1 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-full text-slate-300 transition-colors" data-type="client" data-val="no-license">No Driving License</button>
+            </div>
+
+            <!-- Settings / CORS Toggle -->
+            <div class="mt-4 pt-4 border-t border-slate-700 flex flex-col sm:flex-row items-center gap-4 text-sm">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="corsToggle" class="rounded bg-slate-900 border-slate-600 text-brand-500 focus:ring-brand-500 w-4 h-4 cursor-pointer">
+                    <span class="text-slate-300">Use CORS Proxy (Enable if requests are blocked)</span>
+                </label>
+                <input type="text" id="corsUrl" value="https://cors-anywhere.herokuapp.com/" class="hidden flex-1 max-w-md px-3 py-1 border border-slate-600 rounded bg-slate-900 text-slate-300 focus:outline-none focus:border-brand-500 text-xs" placeholder="https://your-cors-proxy.com/">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Status Messages -->
+        <div id="statusContainer" class="mb-6 hidden">
+            <!-- Loading -->
+            <div id="loadingState" class="hidden flex flex-col items-center justify-center py-12">
+                <svg class="animate-spin -ml-1 mr-3 h-10 w-10 text-brand-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="text-slate-400 font-medium">Fetching minijobs from Arbeitsagentur...</p>
+            </div>
+
+            <!-- Error -->
+            <div id="errorState" class="hidden bg-red-900/50 border border-red-500 rounded-lg p-4 flex items-start gap-3">
+                <svg class="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div>
+                    <h3 class="text-red-400 font-bold mb-1">Network Error</h3>
+                    <p id="errorMessage" class="text-red-200 text-sm mb-2">Failed to fetch data.</p>
+                    <p class="text-red-300 text-xs"><strong>Tip:</strong> Browsers often block local (file://) API requests. <br>1. Toggle "Use CORS Proxy" in the header above, OR<br>2. Install a CORS Unblocker extension for Chrome.</p>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-16 bg-slate-800 rounded-xl border border-slate-700">
+                <svg class="mx-auto h-12 w-12 text-slate-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                <h3 class="text-lg font-medium text-slate-300">No minijobs found</h3>
+                <p class="mt-1 text-sm text-slate-400">Try adjusting filters, expanding your radius, or searching a different city.</p>
+            </div>
+        </div>
+
+        <!-- Meta info (Results count) -->
+        <div id="resultsMeta" class="mb-4 text-slate-400 text-sm hidden font-medium">
+            Found <span id="resultsCount" class="text-white">0</span> minijobs in <span id="resultsLocation" class="text-white">Gelsenkirchen</span>
+        </div>
+
+        <!-- Job Grid -->
+        <div id="jobsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <!-- Job cards will be injected here via JS -->
+        </div>
+
+    </main>
+
+    <script>
+        // --- Configuration & Elements ---
+        const API_BASE_URL = "https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v4/jobs";
+        const API_KEY = "jobboerse-jobsuche";
+        
+        // DOM Elements
+        const elKeyword = document.getElementById('keywordInput');
+        const elCity = document.getElementById('cityInput');
+        const elRadius = document.getElementById('radiusInput');
+        const elRadiusValue = document.getElementById('radiusValue');
+        const elSearchBtn = document.getElementById('searchBtn');
+        const elCorsToggle = document.getElementById('corsToggle');
+        const elCorsUrl = document.getElementById('corsUrl');
+        
+        const elGrid = document.getElementById('jobsGrid');
+        const elStatusContainer = document.getElementById('statusContainer');
+        const elLoading = document.getElementById('loadingState');
+        const elError = document.getElementById('errorState');
+        const elErrorMessage = document.getElementById('errorMessage');
+        const elEmpty = document.getElementById('emptyState');
+        const elResultsMeta = document.getElementById('resultsMeta');
+        
+        // --- Event Listeners ---
+        
+        // Update radius slider text
+        elRadius.addEventListener('input', (e) => {
+            elRadiusValue.textContent = `${e.target.value} km`;
         });
-    }
 
-    let simTimer = null;
-    function startApplySimulation(jobIndex) {
-        if (simTimer) clearInterval(simTimer);
-
-        const job = state.foundJobs[jobIndex];
-        if (!job) return;
-
-        switchTab('automation');
-
-        document.getElementById('sim-idle-state').classList.add('hidden');
-        document.getElementById('sim-active-container').classList.remove('hidden');
-        document.getElementById('sim-progress-bar').classList.remove('hidden');
-        document.getElementById('simulator-url').innerText = job.applyUrl.replace('https://', '');
-
-        document.getElementById('sim-job-title').innerText = job.title;
-        document.getElementById('sim-company').innerText = job.company;
-
-        document.getElementById('val-name').innerText = "---";
-        document.getElementById('val-email').innerText = "---";
-        document.getElementById('val-cv').innerText = "---";
-        document.getElementById('val-hours').className = "font-mono text-slate-500";
-        document.getElementById('val-hours').innerText = "Checking...";
-
-        document.querySelectorAll('[id^="field-"]').forEach(el => el.className = "flex items-center justify-between bg-slate-950 p-2.5 rounded-lg border border-slate-800");
-
-        const term = document.getElementById('terminal-logs');
-        term.innerHTML = `<div class="text-yellow-500 font-bold">[SYSTEM] Initiating local simulation run for ${job.title}...</div>`;
-
-        const cvFileNameToSimulate = state.profile.cvFileName || "Profile_CV_Document.pdf";
-
-        const steps = [
-            {
-                label: "Launching local automated driver...",
-                trace: "[PLAYWRIGHT] Executing background worker process: chromium.launch({ headless: true });",
-                execute: () => { document.getElementById('sim-progress-bar').style.width = "16%"; }
-            },
-            {
-                label: "Accessing vacancy apply portal...",
-                trace: `[PLAYWRIGHT] page.goto('${job.applyUrl}');\n[SYSTEM] Loading external DOM structures... OK`,
-                execute: () => { document.getElementById('sim-progress-bar').style.width = "33%"; }
-            },
-            {
-                label: "Locating targeted input forms...",
-                trace: "[DOM] Found matching selectors: 'firstName', 'lastName', 'email', 'phone'.\n[DOM] Identifying required checkbox structures.",
-                execute: () => { document.getElementById('sim-progress-bar').style.width = "50%"; }
-            },
-            {
-                label: "Injecting profile specifications...",
-                trace: `[AUTOMATION] Injecting profile values:\n -> Name: "${state.profile.firstName} ${state.profile.lastName}"\n -> Contact: "${state.profile.email}"\n -> Phone: "${state.profile.phone}"`,
-                execute: () => {
-                    document.getElementById('sim-progress-bar').style.width = "66%";
-                    document.getElementById('val-name').innerText = `${state.profile.firstName} ${state.profile.lastName}`;
-                    document.getElementById('val-email').innerText = state.profile.email;
-                    document.getElementById('field-name').classList.add('border-indigo-500', 'bg-indigo-950/20');
-                    document.getElementById('field-email').classList.add('border-indigo-500', 'bg-indigo-950/20');
-                }
-            },
-            {
-                label: "Attaching CV & Declaring hours limit...",
-                trace: `[AUTOMATION] Loading local file buffers...\n[COMPLIANCE] CV File attached: ${cvFileNameToSimulate}\n[COMPLIANCE] Strict limit checkbox selected: <= 10 hours max weekly weekly limit enforced.`,
-                execute: () => {
-                    document.getElementById('sim-progress-bar').style.width = "83%";
-                    document.getElementById('val-cv').innerText = cvFileNameToSimulate;
-                    document.getElementById('val-hours').innerText = "Checked & Verified (<= 10h/w)";
-                    document.getElementById('val-hours').className = "font-mono text-emerald-400 font-bold";
-                    document.getElementById('field-cv').classList.add('border-indigo-500', 'bg-indigo-950/20');
-                    document.getElementById('field-hours').classList.add('border-emerald-500/50', 'bg-emerald-950/10');
-                }
-            },
-            {
-                label: "Application process complete!",
-                trace: `[SYSTEM] Submitting application forms...\n[RESPONSE] Status 200: Successfully Applied.\n[TELEGRAM] Webhook successfully triggered for local updates.`,
-                execute: () => {
-                    document.getElementById('sim-progress-bar').style.width = "100%";
-                    saveAppliedJob(job);
-                }
-            }
-        ];
-
-        let currentStep = 0;
-        simTimer = setInterval(() => {
-            if (currentStep < steps.length) {
-                const s = steps[currentStep];
-                
-                document.getElementById('step-label').innerText = s.label;
-                document.getElementById('step-count').innerText = `${currentStep + 1}/${steps.length}`;
-                
-                s.execute();
-
-                const entry = document.createElement('div');
-                entry.className = "border-l border-indigo-500/50 pl-2 mt-1.5 text-[11px] font-mono leading-relaxed";
-                entry.innerHTML = `<span class="text-slate-500">[${new Date().toLocaleTimeString()}]</span> ${s.trace.replace(/\n/g, '<br>')}`;
-                term.appendChild(entry);
-                term.scrollTop = term.scrollHeight;
-
-                currentStep++;
+        // Toggle CORS URL input visibility
+        elCorsToggle.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                elCorsUrl.classList.remove('hidden');
             } else {
-                clearInterval(simTimer);
-                showToast("Simulation run-through finished successfully!");
+                elCorsUrl.classList.add('hidden');
             }
-        }, 2000);
-    }
+        });
 
-    // Compile Bookmarklet script
-    function generateBookmarklet() {
-        const firstName = state.profile.firstName || "Ahmed";
-        const lastName = state.profile.lastName || "Henedy";
-        const email = state.profile.email || "amdhenedy@gmail.com";
-        const phone = state.profile.phone || "+491608704473";
-        const coverLetter = state.profile.cvText ? state.profile.cvText.replace(/\n/g, '\\n').replace(/'/g, "\\'") : '';
-
-        const code = `javascript:(function(){
-            const info = {
-                firstName: "${firstName}",
-                lastName: "${lastName}",
-                email: "${email}",
-                phone: "${phone}",
-                coverLetter: "${coverLetter}"
-            };
-            
-            const inputs = document.querySelectorAll('input, textarea');
-            inputs.forEach(el => {
-                const name = (el.name || el.id || el.placeholder || '').toLowerCase();
-                if (name.includes('first') || name.includes('vorname')) el.value = info.firstName;
-                else if (name.includes('last') || name.includes('nachname')) el.value = info.lastName;
-                else if (name.includes('email') || name.includes('mail')) el.value = info.email;
-                else if (name.includes('phone') || name.includes('tel') || name.includes('mobil')) el.value = info.phone;
-                else if (name.includes('cover') || name.includes('schreiben') || name.includes('message')) el.value = info.coverLetter;
-                
-                el.dispatchEvent(new Event('input', { bubbles: true }));
-                el.dispatchEvent(new Event('change', { bubbles: true }));
-            });
-
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach(box => {
-                const label = (box.parentElement ? box.parentElement.innerText : '').toLowerCase();
-                if (label.includes('10') || label.includes('teil') || label.includes('part') || label.includes('mini')) {
-                    box.checked = true;
-                    box.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-            });
-
-            const badge = document.createElement('div');
-            badge.style = "position:fixed;top:20px;right:20px;z-index:99999;background:#4f46e5;color:white;padding:12px 20px;border-radius:12px;font-family:sans-serif;font-size:12px;font-weight:bold;box-shadow:0 10px 15px -3px rgba(0,0,0,0.3);";
-            badge.innerText = "⚡ Minijob Auto-Fill Complete! Verified <= 10h/w Exemption.";
-            document.body.appendChild(badge);
-            setTimeout(() => badge.remove(), 4000);
-        })();`;
-
-        const link = document.getElementById('magical-bookmarklet-link');
-        link.href = code.replace(/\s+/g, ' ');
-    }
-
-    function saveAppliedJob(job) {
-        if (state.appliedJobs.some(x => x.title === job.title && x.company === job.company)) {
-            return;
-        }
-
-        const newApply = {
-            title: job.title,
-            company: job.company,
-            location: job.location,
-            appliedAt: new Date().toLocaleDateString('de-DE'),
-            status: "Applied"
+        // Quick Filters state
+        const activeFilters = {
+            api: new Set(),
+            client: new Set()
         };
 
-        state.appliedJobs.unshift(newApply);
-        localStorage.setItem('applied_jobs', JSON.stringify(state.appliedJobs));
-        renderAppliedJobs();
-    }
-
-    function renderAppliedJobs() {
-        const list = document.getElementById('applied-jobs-list');
-        document.getElementById('stat-applied-count').innerText = state.appliedJobs.length;
-
-        if (state.appliedJobs.length === 0) {
-            list.innerHTML = `
-                <div class="h-full flex flex-col items-center justify-center text-center text-slate-500">
-                    <div class="text-4xl mb-2"><i class="fa-solid fa-receipt"></i></div>
-                    <p class="text-sm">No auto-applied jobs yet.</p>
-                </div>
-            `;
-            return;
-        }
-
-        list.innerHTML = '';
-        state.appliedJobs.forEach((job) => {
-            const row = document.createElement('div');
-            row.className = "bg-slate-950 border border-slate-800 p-3.5 rounded-xl flex items-center justify-between gap-4 text-xs hover:border-slate-700 transition-all";
-            row.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <div class="bg-indigo-500/10 p-2 rounded-lg text-indigo-400">
-                        <i class="fa-solid fa-file-invoice"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-slate-200">${job.title}</h4>
-                        <p class="text-slate-400 text-[10px] mt-0.5">${job.company} • Applied: ${job.appliedAt}</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-semibold text-[10px] uppercase">
-                        ${job.status}
-                    </span>
-                </div>
-            `;
-            list.appendChild(row);
+        // Quick Filters logic
+        const quickFilterBtns = document.querySelectorAll('.quick-filter-btn');
+        quickFilterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const type = btn.getAttribute('data-type');
+                const val = btn.getAttribute('data-val');
+                
+                if (activeFilters[type].has(val)) {
+                    // Remove filter
+                    activeFilters[type].delete(val);
+                    btn.classList.remove('bg-brand-600', 'text-white', 'border-brand-500');
+                    btn.classList.add('bg-slate-700', 'text-slate-300', 'border-slate-600');
+                } else {
+                    // Add filter
+                    activeFilters[type].add(val);
+                    btn.classList.remove('bg-slate-700', 'text-slate-300', 'border-slate-600');
+                    btn.classList.add('bg-brand-600', 'text-white', 'border-brand-500');
+                }
+                fetchJobs(); // Auto search
+            });
         });
-    }
 
-    function sendSimulatedTelegramMessage(event) {
-        event.preventDefault();
-        const input = document.getElementById('tg-msg-input');
-        const text = input.value.trim();
-        if (!text) return;
+        // Trigger search on button click or Enter key
+        elSearchBtn.addEventListener('click', fetchJobs);
+        elCity.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') fetchJobs();
+        });
+        elKeyword.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') fetchJobs();
+        });
 
-        appendTelegramBubble(text, true);
-        input.value = '';
+        // --- Core Logic ---
 
-        setTimeout(() => {
-            handleBotResponse(text);
-        }, 1000);
-    }
+        function updateUIState(state, message = '') {
+            elStatusContainer.classList.remove('hidden');
+            elLoading.classList.add('hidden');
+            elError.classList.add('hidden');
+            elEmpty.classList.add('hidden');
+            elResultsMeta.classList.add('hidden');
 
-    function appendTelegramBubble(text, isUser = false) {
-        const container = document.getElementById('telegram-chat-area');
-        const bubble = document.createElement('div');
-        
-        if (isUser) {
-            bubble.className = "flex gap-2 text-xs justify-end";
-            bubble.innerHTML = `
-                <div class="bg-indigo-600 text-white p-3 rounded-2xl max-w-[80%] rounded-tr-none">
-                    <p class="leading-relaxed">${text}</p>
-                </div>
-                <div class="w-7 h-7 rounded-full bg-slate-800 shrink-0 flex items-center justify-center text-slate-300 font-bold text-[10px]">YOU</div>
-            `;
-        } else {
-            bubble.className = "flex gap-2 text-xs";
-            bubble.innerHTML = `
-                <div class="w-7 h-7 rounded-full bg-indigo-600 shrink-0 flex items-center justify-center text-white font-bold text-[10px]">MJ</div>
-                <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl max-w-[80%] rounded-tl-none">
-                    <p class="text-slate-300 leading-relaxed">${text}</p>
-                </div>
-            `;
+            if (state === 'loading') {
+                elGrid.innerHTML = '';
+                elLoading.classList.remove('hidden');
+            } else if (state === 'error') {
+                elError.classList.remove('hidden');
+                elErrorMessage.textContent = message;
+            } else if (state === 'empty') {
+                elEmpty.classList.remove('hidden');
+            } else if (state === 'success') {
+                elStatusContainer.classList.add('hidden');
+                elResultsMeta.classList.remove('hidden');
+            }
         }
-        
-        container.appendChild(bubble);
-        container.scrollTop = container.scrollHeight;
-    }
 
-    function handleBotResponse(text) {
-        const cmd = text.toLowerCase();
-        
-        if (cmd.startsWith('/status')) {
-            const attachedFile = state.profile.cvFileName || "Not yet uploaded";
-            appendTelegramBubble(`🛡️ <strong>Compliance Safeguard Details:</strong><br>
-Current Applicant Profile: <strong>${state.profile.firstName} ${state.profile.lastName}</strong>.<br>
-Maximum working hours: <strong>${state.profile.maxHours} Hours / Week max.</strong><br>
-German Level: <strong>${state.profile.germanLevel || 'B1'}</strong><br>
-Driving License (Class B): <strong>${state.profile.hasDrivingLicense ? 'Yes' : 'No'}</strong><br>
-Linked CV: <span class="text-emerald-400 font-mono text-[11px]">${attachedFile}</span>`);
-        } 
-        else if (cmd.startsWith('/scan')) {
-            const parts = text.split(' ');
-            const targetCity = parts.length > 1 ? parts.slice(1).join(' ') : state.profile.city;
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('de-DE', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        function createJobCard(job) {
+            // Safely extract data with fallbacks
+            const title = job.titel || job.beruf || 'Unknown Title';
+            const company = job.arbeitgeber || 'Confidential / Unknown Company';
             
-            appendTelegramBubble(`🔍 Scanning Minijobs in <strong>${targetCity}</strong>... please wait.`);
+            // Build Location String
+            let location = 'Unknown Location';
+            if (job.arbeitsort) {
+                const plz = job.arbeitsort.plz || '';
+                const ort = job.arbeitsort.ort || '';
+                location = `${plz} ${ort}`.trim();
+                if(!location) location = job.arbeitsort.region || 'Unknown Location';
+            }
+
+            const releaseDate = formatDate(job.aktuelleVeroeffentlichungsdatum || job.veroeffentlichungsdatum);
+            const refNr = job.refnr;
+            const detailUrl = `https://www.arbeitsagentur.de/jobsuche/jobdetail/${refNr}`;
+
+            // Create card element
+            const card = document.createElement('div');
+            card.className = "bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-700 hover:border-brand-500 hover:shadow-brand-500/10 transition-all duration-300 flex flex-col h-full group";
             
-            setTimeout(() => {
-                appendTelegramBubble(`✅ Scan complete! Found 3 active Minijobs matching requirements in <strong>${targetCity}</strong>.<br>
-1. Warenverräumer (m/w/d) - Rewe Markt<br>
-2. Aushilfe Kasse - Decathlon Deutschland<br><br>
-Run Auto-Apply directly from your local dashboard.`);
-            }, 1500);
-        } 
-        else if (cmd.startsWith('/apply')) {
-            appendTelegramBubble(`🤖 Initializing local browser connection to apply... view the simulator logs on the dashboard.`);
+            card.innerHTML = `
+                <div class="flex-1">
+                    <div class="flex justify-between items-start mb-2 gap-2">
+                        <h2 class="text-lg font-bold text-white leading-tight group-hover:text-brand-400 transition-colors">${title}</h2>
+                    </div>
+                    <div class="flex items-center gap-2 text-slate-400 mb-4 text-sm font-medium">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        <span class="truncate" title="${company}">${company}</span>
+                    </div>
+
+                    <div class="space-y-2 mb-6">
+                        <div class="flex items-center gap-2 text-slate-300 text-sm">
+                            <svg class="w-4 h-4 text-brand-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span class="truncate" title="${location}">${location}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-slate-300 text-sm">
+                            <svg class="w-4 h-4 text-brand-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span>${releaseDate}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="${detailUrl}" target="_blank" rel="noopener noreferrer" class="block w-full text-center bg-slate-700 hover:bg-brand-600 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors border border-slate-600 hover:border-brand-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-brand-500">
+                    Open Vacancy
+                </a>
+            `;
+
+            return card;
         }
-        else {
-            appendTelegramBubble(`❓ Command unrecognized. Try:<br>
-<span class="font-mono text-indigo-400">/scan ${state.profile.city}</span> or <span class="font-mono text-indigo-400">/status</span>`);
+
+        async function fetchJobs() {
+            const keyword = elKeyword.value.trim();
+            const city = elCity.value.trim() || 'Gelsenkirchen';
+            const radius = elRadius.value;
+            const useProxy = elCorsToggle.checked;
+            const proxyUrl = elCorsUrl.value.trim();
+
+            // Construct Query Parameters
+            // angebotsart=1 (Jobs), arbeitszeit=mj (Minijobs), size=100 (Fetch more to account for client-side filtering)
+            const params = new URLSearchParams({
+                angebotsart: 1,
+                arbeitszeit: 'mj',
+                size: 100, 
+                umkreis: radius,
+                wo: city
+            });
+
+            // Combine manual keyword input with API quick filters
+            let apiKeywords = [keyword];
+            activeFilters.api.forEach(val => apiKeywords.push(val));
+            const finalKeyword = apiKeywords.filter(k => k).join(' ');
+
+            if (finalKeyword) {
+                params.append('was', finalKeyword);
+            }
+
+            let fetchUrl = `${API_BASE_URL}?${params.toString()}`;
+            
+            // Prepend proxy if enabled
+            if (useProxy && proxyUrl) {
+                // Ensure proxy url ends with / if not present
+                const pUrl = proxyUrl.endsWith('/') ? proxyUrl : proxyUrl + '/';
+                fetchUrl = pUrl + fetchUrl;
+            }
+
+            updateUIState('loading');
+
+            try {
+                const response = await fetch(fetchUrl, {
+                    method: 'GET',
+                    headers: {
+                        'X-API-Key': API_KEY,
+                        // Some CORS proxies require this specific header
+                        'X-Requested-With': 'XMLHttpRequest' 
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                let jobs = data.stellenangebote || [];
+
+                // --- 1. STRICT MINIJOB FILTER ---
+                // Employers sometimes mislabel 'Teilzeit' (e.g., 20h/week) as Minijobs to get more views. 
+                // We actively strip out any jobs explicitly declaring "Teilzeit" or "Vollzeit" in the title, 
+                // UNLESS they also explicitly mention "Minijob" or "Aushilfe".
+                jobs = jobs.filter(job => {
+                    const title = (job.titel || '').toLowerCase();
+                    if (title.includes('vollzeit')) return false;
+                    if (title.includes('teilzeit') && !/(minijob|aushilfe|538|basis|geringfügig)/.test(title)) {
+                        return false;
+                    }
+                    return true;
+                });
+
+                // --- 2. CLIENT-SIDE EXCLUSIONS ---
+                if (activeFilters.client.has('no-license')) {
+                    // Exclude jobs that strongly imply driving
+                    jobs = jobs.filter(job => {
+                        const title = (job.titel || '').toLowerCase();
+                        return !/(führerschein|klasse b|pkw|fahrer|kurier|lieferant|auslieferung)/.test(title);
+                    });
+                }
+
+                // --- 3. DATE FILTER (Max 30 days old) ---
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+                jobs = jobs.filter(job => {
+                    const dateStr = job.aktuelleVeroeffentlichungsdatum || job.veroeffentlichungsdatum;
+                    if (!dateStr) return true; // Keep if the API doesn't provide a date
+                    const jobDate = new Date(dateStr);
+                    return jobDate >= thirtyDaysAgo;
+                });
+
+                if (jobs.length === 0) {
+                    updateUIState('empty');
+                    return;
+                }
+
+                // Render jobs
+                elGrid.innerHTML = '';
+                jobs.forEach(job => {
+                    elGrid.appendChild(createJobCard(job));
+                });
+
+                // Update meta counters
+                document.getElementById('resultsCount').textContent = jobs.length;
+                document.getElementById('resultsLocation').textContent = city;
+                updateUIState('success');
+
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                updateUIState('error', error.message);
+            }
         }
-    }
 
-    function generateBotCode() {
-        const codeElement = document.getElementById('bot-code-preview');
-        const simulatedFileName = state.profile.cvFileName || "cv.pdf";
-        
-        const source = `/**
- * Minijob Finder & Auto-Apply Bot
- * Language: Node.js (v18+)
- * 
- * Instructions:
- * 1. Run "npm install telegraf playwright dotenv"
- * 2. Save this file as "bot.js" in your local repository
- */
+        // --- Initialization ---
+        // Automatically run a search for Gelsenkirchen on load
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchJobs();
+        });
 
-require('dotenv').config();
-const { Telegraf } = require('telegraf');
-const { chromium } = require('playwright');
-
-const USER_PROFILE = {
-    firstName: "${state.profile.firstName}",
-    lastName: "${state.profile.lastName}",
-    email: "${state.profile.email}",
-    phone: "${state.profile.phone}",
-    dob: "${state.profile.dob}",
-    city: "${state.profile.city}",
-    address: "${state.profile.address}",
-    coverLetter: \`${state.profile.cvText.replace(/`/g, '\\`').substring(0, 300)}...\`,
-    maxHoursWeekly: ${state.profile.maxHours},
-    germanLevel: "${state.profile.germanLevel || 'B1'}",
-    hasDrivingLicense: ${state.profile.hasDrivingLicense !== false},
-    cvFileName: "${simulatedFileName}"
-};
-
-const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
-
-bot.start((ctx) => {
-    ctx.reply(\`Willkommen \${USER_PROFILE.firstName}! I am your automated Minijob helper.\\n\\nCommands:\\n/scan [city] - Search jobs\\n/status - Verify credentials\`);
-});
-
-bot.command('status', (ctx) => {
-    ctx.reply(\`🛡️ Compliance Guard active. All submissions restricted to \${USER_PROFILE.maxHoursWeekly} hrs/week max. Required German: \${USER_PROFILE.germanLevel} | Has License: \${USER_PROFILE.hasDrivingLicense ? 'Yes' : 'No'}\`);
-});
-
-bot.launch().then(() => console.log('Local Bot launched successfully.'));
-`;
-        codeElement.innerText = source;
-    }
-
-    function copyBotCodeToClipboard() {
-        const codeText = document.getElementById('bot-code-preview').innerText;
-        const tempTextarea = document.createElement('textarea');
-        tempTextarea.value = codeText;
-        document.body.appendChild(tempTextarea);
-        tempTextarea.select();
-        try {
-            document.execCommand('copy');
-            showToast("Bot script copied to clipboard!");
-        } catch (err) {
-            showToast("Failed to copy code.", true);
-        }
-        document.body.removeChild(tempTextarea);
-    }
-</script>
+    </script>
 </body>
 </html>
