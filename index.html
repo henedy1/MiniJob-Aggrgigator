@@ -21,36 +21,24 @@
         }
     </script>
     <style>
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1e293b;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #475569;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
-        }
+        /* Custom scrollbar for a sleeker look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-200 min-h-screen font-sans antialiased flex flex-col">
 
-    <!-- Top Navigation & Search Bar -->
     <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-10 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex flex-col xl:flex-row items-center justify-between gap-6">
-                <!-- Logo/Title -->
                 <div class="flex items-center gap-3 w-full xl:w-auto">
                     <svg class="w-8 h-8 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     <h1 class="text-2xl font-bold tracking-tight text-white">Minijob<span class="text-brand-500">Radar</span></h1>
                 </div>
 
-                <!-- Search Controls -->
                 <div class="flex flex-col md:flex-row items-center gap-4 w-full xl:w-auto flex-1 justify-end">
-                    <!-- Keyword Input -->
                     <div class="relative w-full md:w-48 lg:w-64">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -58,7 +46,6 @@
                         <input type="text" id="keywordInput" placeholder="Keywords (e.g. B1, English)..." class="block w-full pl-9 pr-3 py-2 border border-slate-600 rounded-lg leading-5 bg-slate-900 text-slate-300 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition-colors">
                     </div>
 
-                    <!-- City Input -->
                     <div class="relative w-full md:w-48 lg:w-64">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -66,7 +53,6 @@
                         <input type="text" id="cityInput" placeholder="City or Postal Code..." value="Gelsenkirchen" class="block w-full pl-9 pr-3 py-2 border border-slate-600 rounded-lg leading-5 bg-slate-900 text-slate-300 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition-colors">
                     </div>
 
-                    <!-- Radius Slider -->
                     <div class="flex items-center gap-3 w-full md:w-auto bg-slate-900 px-4 py-2 rounded-lg border border-slate-600">
                         <label for="radiusInput" class="text-sm font-medium text-slate-300 whitespace-nowrap">Radius:</label>
                         <input type="range" id="radiusInput" min="0" max="100" value="10" class="w-24 accent-brand-500">
@@ -80,35 +66,28 @@
                 </div>
             </div>
 
-            <!-- Quick Filters -->
             <div class="mt-5 flex flex-wrap items-center gap-2 text-sm">
                 <span class="text-slate-400 font-medium mr-1">Requirements:</span>
-                <!-- API Filters (must contain) -->
                 <button type="button" class="quick-filter-btn px-3 py-1 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-full text-slate-300 transition-colors" data-type="api" data-val="A2">A2 German</button>
                 <button type="button" class="quick-filter-btn px-3 py-1 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-full text-slate-300 transition-colors" data-type="api" data-val="B1">B1 German</button>
                 <button type="button" class="quick-filter-btn px-3 py-1 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-full text-slate-300 transition-colors" data-type="api" data-val="English">English</button>
                 <span class="text-slate-500 mx-1">|</span>
-                <!-- Client-side Filters (exclude) -->
                 <button type="button" class="quick-filter-btn px-3 py-1 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-full text-slate-300 transition-colors" data-type="client" data-val="no-license">No Driving License</button>
             </div>
 
-            <!-- Settings / CORS Toggle -->
             <div class="mt-4 pt-4 border-t border-slate-700 flex flex-col sm:flex-row items-center gap-4 text-sm">
                 <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" id="corsToggle" class="rounded bg-slate-900 border-slate-600 text-brand-500 focus:ring-brand-500 w-4 h-4 cursor-pointer">
+                    <input type="checkbox" id="corsToggle" class="rounded bg-slate-900 border-slate-600 text-brand-500 focus:ring-brand-500 w-4 h-4 cursor-pointer" checked>
                     <span class="text-slate-300">Use CORS Proxy (Enable if requests are blocked)</span>
                 </label>
-                <input type="text" id="corsUrl" value="https://cors-anywhere.herokuapp.com/" class="hidden flex-1 max-w-md px-3 py-1 border border-slate-600 rounded bg-slate-900 text-slate-300 focus:outline-none focus:border-brand-500 text-xs" placeholder="https://your-cors-proxy.com/">
+                <input type="text" id="corsUrl" value="https://cors-anywhere.herokuapp.com/" class="flex-1 max-w-md px-3 py-1 border border-slate-600 rounded bg-slate-900 text-slate-300 focus:outline-none focus:border-brand-500 text-xs" placeholder="https://your-cors-proxy.com/">
             </div>
         </div>
     </header>
 
-    <!-- Main Content Area -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        <!-- Status Messages -->
         <div id="statusContainer" class="mb-6 hidden">
-            <!-- Loading -->
             <div id="loadingState" class="hidden flex flex-col items-center justify-center py-12">
                 <svg class="animate-spin -ml-1 mr-3 h-10 w-10 text-brand-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -117,7 +96,6 @@
                 <p class="text-slate-400 font-medium">Fetching minijobs from Arbeitsagentur...</p>
             </div>
 
-            <!-- Error -->
             <div id="errorState" class="hidden bg-red-900/50 border border-red-500 rounded-lg p-4 flex items-start gap-3">
                 <svg class="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <div>
@@ -127,23 +105,29 @@
                 </div>
             </div>
 
-            <!-- Empty State -->
             <div id="emptyState" class="hidden text-center py-16 bg-slate-800 rounded-xl border border-slate-700">
                 <svg class="mx-auto h-12 w-12 text-slate-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                 <h3 class="text-lg font-medium text-slate-300">No minijobs found</h3>
-                <p class="mt-1 text-sm text-slate-400">Try adjusting filters, expanding your radius, or searching a different city.</p>
+                <p class="mt-1 text-sm text-slate-400">Try expanding your radius or searching in a different city.</p>
             </div>
         </div>
 
-        <!-- Meta info (Results count) -->
-        <div id="resultsMeta" class="mb-4 text-slate-400 text-sm hidden font-medium">
-            Found <span id="resultsCount" class="text-white">0</span> minijobs in <span id="resultsLocation" class="text-white">Gelsenkirchen</span>
+        <div id="resultsMeta" class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hidden">
+            <div class="text-slate-400 text-sm font-medium">
+                Found <span id="resultsCount" class="text-white">0</span> minijobs in <span id="resultsLocation" class="text-white">Gelsenkirchen</span>
+            </div>
+            
+            <div class="flex items-center gap-2 text-sm">
+                <label for="sortOrder" class="text-slate-400 font-medium">Sort by Date:</label>
+                <select id="sortOrder" class="bg-slate-800 border border-slate-600 text-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors cursor-pointer">
+                    <option value="desc">Newest First</option>
+                    <option value="asc">Oldest First</option>
+                </select>
+            </div>
         </div>
 
-        <!-- Job Grid -->
         <div id="jobsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            <!-- Job cards will be injected here via JS -->
-        </div>
+            </div>
 
     </main>
 
@@ -152,6 +136,8 @@
         const API_BASE_URL = "https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v4/jobs";
         const API_KEY = "jobboerse-jobsuche";
         
+        let globalJobsList = []; // Stores the current fetched jobs for local sorting
+
         // DOM Elements
         const elKeyword = document.getElementById('keywordInput');
         const elCity = document.getElementById('cityInput');
@@ -160,6 +146,7 @@
         const elSearchBtn = document.getElementById('searchBtn');
         const elCorsToggle = document.getElementById('corsToggle');
         const elCorsUrl = document.getElementById('corsUrl');
+        const elSortOrder = document.getElementById('sortOrder');
         
         const elGrid = document.getElementById('jobsGrid');
         const elStatusContainer = document.getElementById('statusContainer');
@@ -199,12 +186,10 @@
                 const val = btn.getAttribute('data-val');
                 
                 if (activeFilters[type].has(val)) {
-                    // Remove filter
                     activeFilters[type].delete(val);
                     btn.classList.remove('bg-brand-600', 'text-white', 'border-brand-500');
                     btn.classList.add('bg-slate-700', 'text-slate-300', 'border-slate-600');
                 } else {
-                    // Add filter
                     activeFilters[type].add(val);
                     btn.classList.remove('bg-slate-700', 'text-slate-300', 'border-slate-600');
                     btn.classList.add('bg-brand-600', 'text-white', 'border-brand-500');
@@ -220,6 +205,13 @@
         });
         elKeyword.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') fetchJobs();
+        });
+
+        // Trigger local resort when sort dropdown changes
+        elSortOrder.addEventListener('change', () => {
+            if (globalJobsList.length > 0) {
+                renderJobsGrid();
+            }
         });
 
         // --- Core Logic ---
@@ -242,6 +234,7 @@
             } else if (state === 'success') {
                 elStatusContainer.classList.add('hidden');
                 elResultsMeta.classList.remove('hidden');
+                elResultsMeta.classList.add('flex'); // restore flex layout
             }
         }
 
@@ -255,7 +248,6 @@
             });
         }
 
-        // NEW FUNCTION: Mark job as opened and save to local storage
         function markJobAsOpened(refNr, event) {
             let openedJobs = JSON.parse(localStorage.getItem('openedJobs') || '[]');
             if (!openedJobs.includes(refNr)) {
@@ -263,7 +255,6 @@
                 localStorage.setItem('openedJobs', JSON.stringify(openedJobs));
             }
             
-            // Visual updates on click (instant feedback without reloading)
             const btn = event.currentTarget;
             const card = btn.closest('.job-card');
             
@@ -273,20 +264,17 @@
                 btn.classList.add('bg-slate-800', 'hover:bg-slate-700', 'text-slate-400', 'border-slate-700');
                 btn.innerHTML = `<span class="flex items-center justify-center gap-2"><svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Opened</span>`;
                 
-                // Add the viewed badge
                 const badge = document.createElement('div');
-                badge.className = 'absolute top-4 right-4 bg-slate-700/50 text-xs font-medium text-slate-300 px-2 py-1 rounded border border-slate-600 flex items-center gap-1';
+                badge.className = 'absolute top-4 right-4 bg-slate-700/50 text-xs font-medium text-slate-300 px-2 py-1 rounded border border-slate-600 flex items-center gap-1 z-10';
                 badge.innerHTML = `<svg class="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Viewed`;
                 card.appendChild(badge);
             }
         }
 
         function createJobCard(job) {
-            // Safely extract data with fallbacks
             const title = job.titel || job.beruf || 'Unknown Title';
             const company = job.arbeitgeber || 'Confidential / Unknown Company';
             
-            // Build Location String
             let location = 'Unknown Location';
             if (job.arbeitsort) {
                 const plz = job.arbeitsort.plz || '';
@@ -299,11 +287,9 @@
             const refNr = job.refnr;
             const detailUrl = `https://www.arbeitsagentur.de/jobsuche/jobdetail/${refNr}`;
 
-            // Check if job was already opened previously
             const openedJobs = JSON.parse(localStorage.getItem('openedJobs') || '[]');
             const isOpened = openedJobs.includes(refNr);
 
-            // Dynamic classes based on opened state
             const cardOpacClass = isOpened ? 'is-opened opacity-70 grayscale-[30%]' : '';
             const btnStyles = isOpened 
                 ? 'bg-slate-800 hover:bg-slate-700 text-slate-400 border-slate-700' 
@@ -312,16 +298,15 @@
                 ? `<span class="flex items-center justify-center gap-2"><svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Opened</span>` 
                 : 'Open Vacancy';
             const badgeHtml = isOpened 
-                ? `<div class="absolute top-4 right-4 bg-slate-700/50 text-xs font-medium text-slate-300 px-2 py-1 rounded border border-slate-600 flex items-center gap-1"><svg class="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Viewed</div>` 
+                ? `<div class="absolute top-4 right-4 bg-slate-700/50 text-xs font-medium text-slate-300 px-2 py-1 rounded border border-slate-600 flex items-center gap-1 z-10"><svg class="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Viewed</div>` 
                 : '';
 
-            // Create card element
             const card = document.createElement('div');
             card.className = `job-card relative bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-700 hover:border-brand-500 hover:shadow-brand-500/10 transition-all duration-300 flex flex-col h-full group ${cardOpacClass}`;
             
             card.innerHTML = `
                 ${badgeHtml}
-                <div class="flex-1">
+                <div class="flex-1 relative z-0">
                     <div class="flex justify-between items-start mb-2 gap-2 pr-16">
                         <h2 class="text-lg font-bold text-white leading-tight group-hover:text-brand-400 transition-colors">${title}</h2>
                     </div>
@@ -342,12 +327,28 @@
                     </div>
                 </div>
 
-                <a href="${detailUrl}" onclick="markJobAsOpened('${refNr}', event)" target="_blank" rel="noopener noreferrer" class="block w-full text-center font-semibold py-2.5 px-4 rounded-lg transition-colors border focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-brand-500 ${btnStyles}">
+                <a href="${detailUrl}" onclick="markJobAsOpened('${refNr}', event)" target="_blank" rel="noopener noreferrer" class="block w-full text-center font-semibold py-2.5 px-4 rounded-lg transition-colors border focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-brand-500 relative z-10 ${btnStyles}">
                     ${btnContent}
                 </a>
             `;
 
             return card;
+        }
+
+        // Renders the sorted grid locally
+        function renderJobsGrid() {
+            const sortVal = elSortOrder.value;
+            
+            globalJobsList.sort((a, b) => {
+                const dateA = new Date(a.aktuelleVeroeffentlichungsdatum || a.veroeffentlichungsdatum || 0);
+                const dateB = new Date(b.aktuelleVeroeffentlichungsdatum || b.veroeffentlichungsdatum || 0);
+                return sortVal === 'desc' ? dateB - dateA : dateA - dateB;
+            });
+
+            elGrid.innerHTML = '';
+            globalJobsList.forEach(job => {
+                elGrid.appendChild(createJobCard(job));
+            });
         }
 
         async function fetchJobs() {
@@ -357,8 +358,6 @@
             const useProxy = elCorsToggle.checked;
             const proxyUrl = elCorsUrl.value.trim();
 
-            // Construct Query Parameters
-            // angebotsart=1 (Jobs), arbeitszeit=mj (Minijobs), size=100 (Fetch more to account for client-side filtering)
             const params = new URLSearchParams({
                 angebotsart: 1,
                 arbeitszeit: 'mj',
@@ -367,7 +366,6 @@
                 wo: city
             });
 
-            // Combine manual keyword input with API quick filters
             let apiKeywords = [keyword];
             activeFilters.api.forEach(val => apiKeywords.push(val));
             const finalKeyword = apiKeywords.filter(k => k).join(' ');
@@ -378,9 +376,7 @@
 
             let fetchUrl = `${API_BASE_URL}?${params.toString()}`;
             
-            // Prepend proxy if enabled
             if (useProxy && proxyUrl) {
-                // Ensure proxy url ends with / if not present
                 const pUrl = proxyUrl.endsWith('/') ? proxyUrl : proxyUrl + '/';
                 fetchUrl = pUrl + fetchUrl;
             }
@@ -392,7 +388,6 @@
                     method: 'GET',
                     headers: {
                         'X-API-Key': API_KEY,
-                        // Some CORS proxies require this specific header
                         'X-Requested-With': 'XMLHttpRequest' 
                     }
                 });
@@ -404,10 +399,7 @@
                 const data = await response.json();
                 let jobs = data.stellenangebote || [];
 
-                // --- 1. STRICT MINIJOB FILTER ---
-                // Employers sometimes mislabel 'Teilzeit' (e.g., 20h/week) as Minijobs to get more views. 
-                // We actively strip out any jobs explicitly declaring "Teilzeit" or "Vollzeit" in the title, 
-                // UNLESS they also explicitly mention "Minijob" or "Aushilfe".
+                // 1. STRICT MINIJOB FILTER
                 jobs = jobs.filter(job => {
                     const title = (job.titel || '').toLowerCase();
                     if (title.includes('vollzeit')) return false;
@@ -417,22 +409,20 @@
                     return true;
                 });
 
-                // --- 2. CLIENT-SIDE EXCLUSIONS ---
+                // 2. CLIENT-SIDE EXCLUSIONS
                 if (activeFilters.client.has('no-license')) {
-                    // Exclude jobs that strongly imply driving
                     jobs = jobs.filter(job => {
                         const title = (job.titel || '').toLowerCase();
                         return !/(führerschein|klasse b|pkw|fahrer|kurier|lieferant|auslieferung)/.test(title);
                     });
                 }
 
-                // --- 3. DATE FILTER (Max 30 days old) ---
+                // 3. DATE FILTER (Max 30 days old)
                 const thirtyDaysAgo = new Date();
                 thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
                 jobs = jobs.filter(job => {
                     const dateStr = job.aktuelleVeroeffentlichungsdatum || job.veroeffentlichungsdatum;
-                    if (!dateStr) return true; // Keep if the API doesn't provide a date
+                    if (!dateStr) return true; // Keep if no date provided
                     const jobDate = new Date(dateStr);
                     return jobDate >= thirtyDaysAgo;
                 });
@@ -442,16 +432,15 @@
                     return;
                 }
 
-                // Render jobs
-                elGrid.innerHTML = '';
-                jobs.forEach(job => {
-                    elGrid.appendChild(createJobCard(job));
-                });
+                // Save to global variable for local sorting
+                globalJobsList = jobs;
 
                 // Update meta counters
-                document.getElementById('resultsCount').textContent = jobs.length;
+                document.getElementById('resultsCount').textContent = globalJobsList.length;
                 document.getElementById('resultsLocation').textContent = city;
+                
                 updateUIState('success');
+                renderJobsGrid(); // Automatically applies selected sort and renders
 
             } catch (error) {
                 console.error("Fetch Error:", error);
@@ -460,7 +449,6 @@
         }
 
         // --- Initialization ---
-        // Automatically run a search for Gelsenkirchen on load
         document.addEventListener('DOMContentLoaded', () => {
             fetchJobs();
         });
