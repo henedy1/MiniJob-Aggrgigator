@@ -102,7 +102,7 @@
                 <div>
                     <h3 class="text-red-400 font-bold mb-1">Network Error</h3>
                     <p id="errorMessage" class="text-red-200 text-sm mb-2">Failed to fetch data.</p>
-                    <p class="text-red-300 text-xs"><strong>Tip:</strong> Browsers often block local (file://) API requests. <br>1. Toggle "Use CORS Proxy" in the header above, OR<br>2. Install a CORS Unblocker extension for Chrome.</p>
+                    <p class="text-red-300 text-xs"><strong>Tip:</strong> Browsers often block local/cross-origin API requests. <br>1. Toggle "Use CORS Proxy" in the header above, OR<br>2. Install a CORS Unblocker extension for Chrome.</p>
                 </div>
             </div>
 
@@ -134,8 +134,7 @@
 
     <script>
         // --- Configuration & Elements ---
-        // UPDATED: v4 changed to v6 to prevent 404 errors
-        const API_BASE_URL = "https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v6/jobs";
+        const API_BASE_URL = "https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v4/jobs";
         const API_KEY = "jobboerse-jobsuche";
         
         let globalJobsList = [];
@@ -372,10 +371,11 @@
             let directApiUrl = `${API_BASE_URL}?${params.toString()}`;
             let fetchUrl = directApiUrl;
             
-            // UPDATED: Robust proxy URL construction for corsproxy.io and standard proxies
+            // Universal Proxy Handling (supports corsproxy.io, allorigins, cors-anywhere, etc.)
             if (useProxy && proxyUrl) {
-                if (proxyUrl.includes('corsproxy.io')) {
-                    fetchUrl = proxyUrl.endsWith('?') ? proxyUrl + directApiUrl : proxyUrl + '?' + directApiUrl;
+                if (proxyUrl.includes('corsproxy.io') || proxyUrl.includes('allorigins')) {
+                    const cleanProxy = proxyUrl.endsWith('?') || proxyUrl.endsWith('=') ? proxyUrl : proxyUrl + '?url=';
+                    fetchUrl = cleanProxy + encodeURIComponent(directApiUrl);
                 } else {
                     const pUrl = proxyUrl.endsWith('/') ? proxyUrl : proxyUrl + '/';
                     fetchUrl = pUrl + directApiUrl;
