@@ -712,13 +712,15 @@
 
             const params = new URLSearchParams({
                 angebotsart: 1,
-                arbeitszeit: 'mj',
                 size: 100, 
                 umkreis: radius,
                 wo: city
             });
 
-            let apiKeywords = [keyword];
+            // Force "Minijob" as a base keyword to mimic the official job portal
+            let apiKeywords = ['Minijob'];
+            if (keyword) apiKeywords.push(keyword);
+            
             activeFilters.api.forEach(val => apiKeywords.push(val));
             const finalKeyword = apiKeywords.filter(Boolean).join(' ');
             if (finalKeyword) params.append('was', finalKeyword);
@@ -727,11 +729,13 @@
             let fetchUrl = directApiUrl;
             
             if (useProxy && proxyUrl) {
-                if (proxyUrl.includes('corsproxy.io') || proxyUrl.includes('allorigins')) {
-                    const cleanProxy = proxyUrl.endsWith('?') || proxyUrl.endsWith('=') ? proxyUrl : proxyUrl + '?url=';
-                    fetchUrl = cleanProxy + encodeURIComponent(directApiUrl);
+                if (proxyUrl.includes('corsproxy.io')) {
+                    // corsproxy.io requires ?url= prefix and encoded URI for maximum compatibility
+                    fetchUrl = 'https://corsproxy.io/?url=' + encodeURIComponent(directApiUrl);
+                } else if (proxyUrl.endsWith('=')) {
+                    fetchUrl = proxyUrl + encodeURIComponent(directApiUrl);
                 } else {
-                    const pUrl = proxyUrl.endsWith('/') ? proxyUrl : proxyUrl + '/';
+                    const pUrl = proxyUrl.endsWith('/') || proxyUrl.endsWith('?') ? proxyUrl : proxyUrl + '/';
                     fetchUrl = pUrl + directApiUrl;
                 }
             }
@@ -752,11 +756,11 @@
                 const data = await response.json();
                 let jobs = data.stellenangebote || [];
 
-                // Filter Minijobs strictly
+                // Filter Minijobs strictly but fairly
                 jobs = jobs.filter(job => {
                     const title = (job.titel || '').toLowerCase();
-                    if (title.includes('vollzeit')) return false;
-                    if (title.includes('teilzeit') && !/(minijob|aushilfe|538|603|basis|geringfügig)/.test(title)) return false;
+                    // Remove obvious full-time jobs that matched the keyword search
+                    if (title.includes('vollzeit') && !/(minijob|aushilfe|teilzeit)/.test(title)) return false;
                     return true;
                 });
 
