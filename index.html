@@ -9,7 +9,7 @@
             --bg: #0f172a;
             --surface: #1e293b;
             --surface-hover: #334155;
-            --primary: #f97316; /* Switched to Adzuna Orange */
+            --primary: #f97316;
             --primary-hover: #ea580c;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
@@ -34,7 +34,6 @@
             flex-direction: column;
         }
 
-        /* --- Header --- */
         header {
             background-color: var(--surface);
             border-bottom: 1px solid var(--border);
@@ -127,7 +126,6 @@
             background-color: var(--primary-hover);
         }
 
-        /* --- Main Layout --- */
         main {
             flex: 1;
             max-width: 1200px;
@@ -136,7 +134,6 @@
             width: 100%;
         }
 
-        /* --- Status --- */
         #status {
             text-align: center;
             padding: 2rem;
@@ -144,7 +141,6 @@
             font-size: 1.1rem;
         }
 
-        /* --- Grid & Cards --- */
         .job-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -259,7 +255,6 @@
             background-color: var(--surface-hover);
         }
 
-        /* --- Debugger --- */
         .debugger {
             background-color: #000;
             border-top: 2px solid var(--border);
@@ -364,12 +359,10 @@
     </aside>
 
     <script>
-        // --- Adzuna API Config ---
         const ADZUNA_APP_ID = '02afc152';
         const ADZUNA_APP_KEY = 'be758249fbb322880e860eef5f61be68';
-        const API_BASE = 'https://api.adzuna.com/v1/api/jobs/de/search/1'; // Targeting Germany, page 1
+        const API_BASE = 'https://api.adzuna.com/v1/api/jobs/de/search/1'; 
 
-        // --- DOM Elements ---
         const ui = {
             kw: document.getElementById('kwInput'),
             city: document.getElementById('cityInput'),
@@ -384,7 +377,6 @@
             debugLog: document.getElementById('debugLog')
         };
 
-        // --- Event Listeners ---
         ui.rad.addEventListener('input', (e) => ui.radDisplay.textContent = e.target.value);
         ui.btn.addEventListener('click', executeSearch);
         ui.debugToggle.addEventListener('click', toggleDebugger);
@@ -395,7 +387,6 @@
             });
         });
 
-        // --- State Management ---
         function getOpenedJobs() {
             return JSON.parse(localStorage.getItem('adzuna_minijob_opened') || '[]');
         }
@@ -411,7 +402,6 @@
             if (btn) btn.innerHTML = 'Opened';
         }
 
-        // --- Debugger Logic ---
         function toggleDebugger() {
             ui.debugger.classList.toggle('open');
             ui.debugToggle.textContent = ui.debugger.classList.contains('open') ? '▼ Close Log' : '▲ Debug Log';
@@ -430,23 +420,21 @@
             ui.debugLog.prepend(entry);
         }
 
-        // --- Formatting ---
         function formatDate(dateStr) {
             if (!dateStr) return 'N/A';
             const d = new Date(dateStr);
             return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
         }
 
-        // --- Core Application Logic ---
         async function executeSearch() {
             ui.grid.innerHTML = '';
             ui.status.textContent = 'Searching minijobs...';
             ui.status.style.display = 'block';
 
-            // 1. Build Adzuna Query Parameters
             const userKw = ui.kw.value.trim();
             const wasQuery = userKw ? `Minijob ${userKw}` : 'Minijob';
             
+            // FIX: Re-formatted the content-type key with quotes so JavaScript doesn't crash!
             const params = new URLSearchParams({
                 app_id: ADZUNA_APP_ID,
                 app_key: ADZUNA_APP_KEY,
@@ -454,13 +442,11 @@
                 what: wasQuery,
                 where: ui.city.value.trim() || 'Gelsenkirchen',
                 distance: ui.rad.value,
-                content-type: 'application/json'
+                'content-type': 'application/json' 
             });
 
             const targetUrl = `${API_BASE}?${params.toString()}`;
             
-            // 2. Proxy Selection Logic
-            // Adzuna natively handles CORS for browsers, so 'direct' is often best.
             let fetchUrl = targetUrl;
             const proxyChoice = ui.proxy.value;
 
@@ -471,9 +457,8 @@
             }
 
             log(`Initiating fetch via: ${proxyChoice.toUpperCase()}`);
-            log(`Target URL: ${targetUrl.replace(ADZUNA_APP_KEY, 'HIDDEN')}`); // Hide key in logs for safety
+            log(`Target URL: ${targetUrl.replace(ADZUNA_APP_KEY, 'HIDDEN')}`); 
 
-            // 3. Network Request
             try {
                 const response = await fetch(fetchUrl, {
                     method: 'GET',
@@ -490,8 +475,14 @@
 
                 const data = await response.json();
                 
-                // Zero-Loss Pipeline: Take everything provided by Adzuna
-                const jobs = data.results || [];
+                let jobs = [];
+                // Handle different JSON structures depending on if we use a proxy or not
+                if (proxyChoice === 'allorigins' && data.contents) {
+                    const parsed = JSON.parse(data.contents);
+                    jobs = parsed.results || [];
+                } else {
+                    jobs = data.results || [];
+                }
                 
                 log(`Response parsed. Jobs found: ${jobs.length}`, 'success');
 
@@ -505,7 +496,7 @@
 
             } catch (error) {
                 log(`Fetch failed: ${error.message}`, 'error');
-                ui.status.innerHTML = `<span style="color: var(--error)">Error fetching jobs: ${error.message}.<br>Try changing the CORS Proxy.</span>`;
+                ui.status.innerHTML = `<span style="color: var(--error)">Error fetching jobs: ${error.message}.<br>Try changing the CORS Proxy or clicking "Debug Log" for details.</span>`;
             }
         }
 
@@ -513,7 +504,6 @@
             const openedTracker = getOpenedJobs();
 
             jobs.forEach(job => {
-                // Safely extract Adzuna properties
                 const title = job.title || 'Unknown Position';
                 const employer = job.company?.display_name || 'Confidential Employer';
                 const date = formatDate(job.created);
@@ -524,7 +514,6 @@
                 
                 const isOpened = openedTracker.includes(String(id));
 
-                // Build DOM
                 const card = document.createElement('div');
                 card.className = `job-card ${isOpened ? 'viewed' : ''}`;
                 
@@ -542,7 +531,6 @@
                     </a>
                 `;
 
-                // Interactivity logic
                 const btn = card.querySelector('.open-btn');
                 if (btn) {
                     btn.addEventListener('click', () => {
@@ -554,7 +542,6 @@
             });
         }
 
-        // Auto-run on load
         executeSearch();
     </script>
 </body>
