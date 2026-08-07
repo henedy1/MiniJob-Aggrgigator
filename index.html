@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minijob Aggregator Dashboard</title>
+    <title>Minijob Radar</title>
     <style>
         :root {
             --bg-primary: #0f172a;
@@ -20,7 +20,6 @@
             --danger-bg: rgba(127, 29, 29, 0.4);
             --danger-border: #ef4444;
             --danger-text: #fca5a5;
-            --success-color: #22c55e;
         }
 
         * {
@@ -193,43 +192,6 @@
 
         .btn-secondary:hover {
             background-color: #475569;
-        }
-
-        .filters-bar {
-            margin-top: 1rem;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-        }
-
-        .filter-label {
-            color: var(--text-muted);
-            font-weight: 500;
-            margin-right: 0.25rem;
-        }
-
-        .chip {
-            background-color: var(--bg-input);
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.8125rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .chip:hover {
-            border-color: var(--brand-primary);
-            color: var(--text-main);
-        }
-
-        .chip.active {
-            background-color: var(--brand-primary);
-            border-color: var(--brand-primary);
-            color: #ffffff;
         }
 
         .proxy-bar {
@@ -435,359 +397,305 @@
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <div class="header-top">
-                <div class="brand">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+
+<header>
+    <div class="container">
+        <div class="header-top">
+            <div class="brand">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+                Minijob<span>Radar</span>
+            </div>
+
+            <div class="search-controls">
+                <div class="input-group">
+                    <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
-                    Minijob<span>Radar</span>
+                    <input type="text" id="keywordInput" placeholder="Keywords (e.g. B1, English)...">
                 </div>
 
-                <div class="search-controls">
-                    <div class="input-group">
-                        <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                        <input type="text" id="keywordInput" placeholder="Keywords (e.g. B1, English)...">
-                    </div>
-
-                    <div class="input-group">
-                        <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                            <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        <input type="text" id="cityInput" placeholder="City or Zip..." value="Gelsenkirchen">
-                    </div>
-
-                    <div class="radius-control">
-                        <label for="radiusInput">Radius:</label>
-                        <input type="range" id="radiusInput" min="0" max="100" value="10">
-                        <span id="radiusValue" class="radius-value">10 km</span>
-                    </div>
-
-                    <button id="searchBtn" class="btn btn-primary">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                        Search
-                    </button>
+                <div class="input-group">
+                    <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <input type="text" id="cityInput" placeholder="City or Zip..." value="Gelsenkirchen">
                 </div>
-            </div>
 
-            <div class="filters-bar">
-                <span class="filter-label">Quick Filters:</span>
-                <button type="button" class="chip" data-type="api" data-val="A2">A2 German</button>
-                <button type="button" class="chip" data-type="api" data-val="B1">B1 German</button>
-                <button type="button" class="chip" data-type="api" data-val="English">English</button>
-                <button type="button" class="chip" data-type="api" data-val="Homeoffice">Remote</button>
-                <button type="button" class="chip" data-type="client" data-val="no-license">No Driving License</button>
-            </div>
-
-            <div class="proxy-bar">
-                <label class="checkbox-label">
-                    <input type="checkbox" id="corsToggle" checked>
-                    <span>Use CORS Proxy</span>
-                </label>
-                <input type="text" id="corsUrl" class="proxy-input" value="https://corsproxy.io/?" placeholder="https://corsproxy.io/?">
-            </div>
-        </div>
-    </header>
-
-    <main class="container">
-        <!-- Status Indicator Container -->
-        <div id="statusContainer" class="hidden">
-            <div id="loadingState" class="status-box hidden">
-                <div class="spinner"></div>
-                <p style="color: var(--text-muted);">Fetching live minijobs from Arbeitsagentur...</p>
-            </div>
-
-            <div id="errorState" class="error-box hidden">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <div>
-                    <strong style="font-size: 1rem; display: block; margin-bottom: 0.25rem;">Network Request Blocked</strong>
-                    <p id="errorMessage" style="font-size: 0.875rem; margin-bottom: 0.5rem;"></p>
-                    <p style="font-size: 0.75rem; opacity: 0.85;">
-                        <strong>Troubleshooting Tip:</strong> Cross-origin restrictions often block browser API calls.<br>
-                        1. Toggle "Use CORS Proxy" above with <code>https://corsproxy.io/?</code><br>
-                        2. Or disable CORS checks locally using an extension.
-                    </p>
+                <div class="radius-control">
+                    <label for="radiusInput">Radius:</label>
+                    <input type="range" id="radiusInput" min="0" max="100" value="25">
+                    <span id="radiusValue" class="radius-value">25 km</span>
                 </div>
-            </div>
 
-            <div id="emptyState" class="status-box hidden">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--text-dim); margin-bottom: 1rem;">
-                    <path d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                </svg>
-                <h3>No minijobs match your query</h3>
-                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem;">Try expanding your search radius or clearing keywords.</p>
+                <button id="searchBtn" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    Search
+                </button>
             </div>
         </div>
 
-        <!-- Meta info & Sorting -->
-        <div id="resultsMeta" class="meta-bar hidden">
+        <div class="proxy-bar">
+            <label class="checkbox-label">
+                <input type="checkbox" id="corsToggle" checked>
+                <span>Use CORS Proxy</span>
+            </label>
+            <input type="text" id="corsUrl" class="proxy-input" value="https://corsproxy.io/?" placeholder="https://corsproxy.io/?">
+        </div>
+    </div>
+</header>
+
+<main class="container">
+    <div id="statusContainer" class="hidden">
+        <div id="loadingState" class="status-box hidden">
+            <div class="spinner"></div>
+            <p style="color: var(--text-muted);">Fetching live minijobs from Arbeitsagentur...</p>
+        </div>
+
+        <div id="errorState" class="error-box hidden">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
             <div>
-                Found <strong id="resultsCount" style="color: #fff;">0</strong> minijobs in <strong id="resultsLocation" style="color: #fff;">Gelsenkirchen</strong>
-            </div>
-            <div class="sort-control">
-                <label for="sortOrder">Sort Date:</label>
-                <select id="sortOrder">
-                    <option value="desc">Newest First</option>
-                    <option value="asc">Oldest First</option>
-                </select>
+                <strong style="font-size: 1rem; display: block; margin-bottom: 0.25rem;">Network Request Blocked</strong>
+                <p id="errorMessage" style="font-size: 0.875rem; margin-bottom: 0.5rem;"></p>
             </div>
         </div>
 
-        <!-- Job Cards Grid -->
-        <div id="jobsGrid" class="jobs-grid"></div>
-    </main>
+        <div id="emptyState" class="status-box hidden">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--text-dim); margin-bottom: 1rem;">
+                <path d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+            </svg>
+            <h3>No minijobs match your query</h3>
+            <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem;">Try expanding your search radius or clearing keywords.</p>
+        </div>
+    </div>
 
-    <script>
-        // Official Public Federal Employment Agency API Endpoint
-        const API_BASE_URL = "https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v6/jobs";
-        const API_KEY = "jobboerse-jobsuche";
+    <div id="resultsMeta" class="meta-bar hidden">
+        <div>
+            Found <strong id="resultsCount" style="color: #fff;">0</strong> minijobs in <strong id="resultsLocation" style="color: #fff;">Gelsenkirchen</strong>
+        </div>
+        <div class="sort-control">
+            <label for="sortOrder">Sort Date:</label>
+            <select id="sortOrder">
+                <option value="desc">Newest First</option>
+                <option value="asc">Oldest First</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="jobsGrid" class="jobs-grid"></div>
+</main>
+
+<script>
+    const API_BASE_URL = "https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v6/jobs";
+    const API_KEY = "jobboerse-jobsuche";
+    
+    let globalJobsList = [];
+
+    const elKeyword = document.getElementById('keywordInput');
+    const elCity = document.getElementById('cityInput');
+    const elRadius = document.getElementById('radiusInput');
+    const elRadiusValue = document.getElementById('radiusValue');
+    const elSearchBtn = document.getElementById('searchBtn');
+    const elCorsToggle = document.getElementById('corsToggle');
+    const elCorsUrl = document.getElementById('corsUrl');
+    const elSortOrder = document.getElementById('sortOrder');
+    
+    const elGrid = document.getElementById('jobsGrid');
+    const elStatusContainer = document.getElementById('statusContainer');
+    const elLoading = document.getElementById('loadingState');
+    const elError = document.getElementById('errorState');
+    const elErrorMessage = document.getElementById('errorMessage');
+    const elEmpty = document.getElementById('emptyState');
+    const elResultsMeta = document.getElementById('resultsMeta');
+
+    elRadius.addEventListener('input', (e) => {
+        elRadiusValue.textContent = `${e.target.value} km`;
+    });
+
+    elSearchBtn.addEventListener('click', fetchJobs);
+    elCity.addEventListener('keypress', (e) => { if (e.key === 'Enter') fetchJobs(); });
+    elKeyword.addEventListener('keypress', (e) => { if (e.key === 'Enter') fetchJobs(); });
+    elSortOrder.addEventListener('change', () => { if (globalJobsList.length > 0) renderJobsGrid(); });
+
+    function updateUIState(state, message = '') {
+        elStatusContainer.classList.remove('hidden');
+        elLoading.classList.add('hidden');
+        elError.classList.add('hidden');
+        elEmpty.classList.add('hidden');
+        elResultsMeta.classList.add('hidden');
+
+        if (state === 'loading') {
+            elGrid.innerHTML = '';
+            elLoading.classList.remove('hidden');
+        } else if (state === 'error') {
+            elError.classList.remove('hidden');
+            elErrorMessage.textContent = message;
+        } else if (state === 'empty') {
+            elEmpty.classList.remove('hidden');
+        } else if (state === 'success') {
+            elStatusContainer.classList.add('hidden');
+            elResultsMeta.classList.remove('hidden');
+        }
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    function markJobAsOpened(refNr, event) {
+        let openedJobs = JSON.parse(localStorage.getItem('openedJobs') || '[]');
+        if (!openedJobs.includes(refNr)) {
+            openedJobs.push(refNr);
+            localStorage.setItem('openedJobs', JSON.stringify(openedJobs));
+        }
         
-        let globalJobsList = [];
-
-        // DOM Elements
-        const elKeyword = document.getElementById('keywordInput');
-        const elCity = document.getElementById('cityInput');
-        const elRadius = document.getElementById('radiusInput');
-        const elRadiusValue = document.getElementById('radiusValue');
-        const elSearchBtn = document.getElementById('searchBtn');
-        const elCorsToggle = document.getElementById('corsToggle');
-        const elCorsUrl = document.getElementById('corsUrl');
-        const elSortOrder = document.getElementById('sortOrder');
+        const btn = event.currentTarget;
+        const card = btn.closest('.job-card');
         
-        const elGrid = document.getElementById('jobsGrid');
-        const elStatusContainer = document.getElementById('statusContainer');
-        const elLoading = document.getElementById('loadingState');
-        const elError = document.getElementById('errorState');
-        const elErrorMessage = document.getElementById('errorMessage');
-        const elEmpty = document.getElementById('emptyState');
-        const elResultsMeta = document.getElementById('resultsMeta');
+        if (card && !card.classList.contains('is-opened')) {
+            card.classList.add('is-opened');
+            btn.classList.replace('btn-primary', 'btn-secondary');
+            btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"></path></svg> Opened`;
+        }
+    }
 
-        // Event Listeners
-        elRadius.addEventListener('input', (e) => {
-            elRadiusValue.textContent = `${e.target.value} km`;
-        });
-
-        const activeFilters = { api: new Set(), client: new Set() };
-        document.querySelectorAll('.chip').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const type = btn.getAttribute('data-type');
-                const val = btn.getAttribute('data-val');
-                
-                if (activeFilters[type].has(val)) {
-                    activeFilters[type].delete(val);
-                    btn.classList.remove('active');
-                } else {
-                    activeFilters[type].add(val);
-                    btn.classList.add('active');
-                }
-                fetchJobs();
-            });
-        });
-
-        elSearchBtn.addEventListener('click', fetchJobs);
-        elCity.addEventListener('keypress', (e) => { if (e.key === 'Enter') fetchJobs(); });
-        elKeyword.addEventListener('keypress', (e) => { if (e.key === 'Enter') fetchJobs(); });
-        elSortOrder.addEventListener('change', () => { if (globalJobsList.length > 0) renderJobsGrid(); });
-
-        function updateUIState(state, message = '') {
-            elStatusContainer.classList.remove('hidden');
-            elLoading.classList.add('hidden');
-            elError.classList.add('hidden');
-            elEmpty.classList.add('hidden');
-            elResultsMeta.classList.add('hidden');
-
-            if (state === 'loading') {
-                elGrid.innerHTML = '';
-                elLoading.classList.remove('hidden');
-            } else if (state === 'error') {
-                elError.classList.remove('hidden');
-                elErrorMessage.textContent = message;
-            } else if (state === 'empty') {
-                elEmpty.classList.remove('hidden');
-            } else if (state === 'success') {
-                elStatusContainer.classList.add('hidden');
-                elResultsMeta.classList.remove('hidden');
-            }
+    function createJobCard(job) {
+        const title = job.titel || job.beruf || 'Minijob Opportunity';
+        const company = job.arbeitgeber || 'Direct Employer';
+        
+        let location = 'Unknown Location';
+        if (job.arbeitsort) {
+            const plz = job.arbeitsort.plz || '';
+            const ort = job.arbeitsort.ort || '';
+            location = `${plz} ${ort}`.trim() || job.arbeitsort.region || 'Unknown Location';
         }
 
-        function formatDate(dateString) {
-            if (!dateString) return 'N/A';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        }
+        const releaseDate = formatDate(job.aktuelleVeroeffentlichungsdatum || job.veroeffentlichungsdatum);
+        const refNr = job.refnr;
+        const detailUrl = `https://www.arbeitsagentur.de/jobsuche/jobdetail/${refNr}`;
 
-        function markJobAsOpened(refNr, event) {
-            let openedJobs = JSON.parse(localStorage.getItem('openedJobs') || '[]');
-            if (!openedJobs.includes(refNr)) {
-                openedJobs.push(refNr);
-                localStorage.setItem('openedJobs', JSON.stringify(openedJobs));
-            }
-            
-            const btn = event.currentTarget;
-            const card = btn.closest('.job-card');
-            
-            if (card && !card.classList.contains('is-opened')) {
-                card.classList.add('is-opened');
-                btn.classList.replace('btn-primary', 'btn-secondary');
-                btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"></path></svg> Opened`;
-            }
-        }
+        const openedJobs = JSON.parse(localStorage.getItem('openedJobs') || '[]');
+        const isOpened = openedJobs.includes(refNr);
 
-        function createJobCard(job) {
-            const title = job.titel || job.beruf || 'Minijob Opportunity';
-            const company = job.arbeitgeber || 'Direct Employer';
-            
-            let location = 'Unknown Location';
-            if (job.arbeitsort) {
-                const plz = job.arbeitsort.plz || '';
-                const ort = job.arbeitsort.ort || '';
-                location = `${plz} ${ort}`.trim() || job.arbeitsort.region || 'Unknown Location';
-            }
-
-            const releaseDate = formatDate(job.aktuelleVeroeffentlichungsdatum || job.veroeffentlichungsdatum);
-            const refNr = job.refnr;
-            const detailUrl = `https://www.arbeitsagentur.de/jobsuche/jobdetail/${refNr}`;
-
-            const openedJobs = JSON.parse(localStorage.getItem('openedJobs') || '[]');
-            const isOpened = openedJobs.includes(refNr);
-
-            const card = document.createElement('div');
-            card.className = `job-card ${isOpened ? 'is-opened' : ''}`;
-            
-            card.innerHTML = `
-                ${isOpened ? `<div class="viewed-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"></path></svg> Viewed</div>` : ''}
-                <div>
-                    <h2 class="job-title">${title}</h2>
-                    <div class="company-name">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                        <span>${company}</span>
-                    </div>
-
-                    <div class="job-meta-list">
-                        <div class="job-meta-item">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
-                            <span>${location}</span>
-                        </div>
-                        <div class="job-meta-item">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            <span>${releaseDate}</span>
-                        </div>
-                    </div>
+        const card = document.createElement('div');
+        card.className = `job-card ${isOpened ? 'is-opened' : ''}`;
+        
+        card.innerHTML = `
+            ${isOpened ? `<div class="viewed-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"></path></svg> Viewed</div>` : ''}
+            <div>
+                <h2 class="job-title">${title}</h2>
+                <div class="company-name">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    <span>${company}</span>
                 </div>
 
-                <a href="${detailUrl}" onclick="markJobAsOpened('${refNr}', event)" target="_blank" rel="noopener noreferrer" class="btn ${isOpened ? 'btn-secondary' : 'btn-primary'}" style="width: 100%;">
-                    ${isOpened ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"></path></svg> Opened' : 'Open Vacancy'}
-                </a>
-            `;
+                <div class="job-meta-list">
+                    <div class="job-meta-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                        <span>${location}</span>
+                    </div>
+                    <div class="job-meta-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span>${releaseDate}</span>
+                    </div>
+                </div>
+            </div>
 
-            return card;
+            <a href="${detailUrl}" onclick="markJobAsOpened('${refNr}', event)" target="_blank" rel="noopener noreferrer" class="btn ${isOpened ? 'btn-secondary' : 'btn-primary'}" style="width: 100%;">
+                ${isOpened ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"></path></svg> Opened' : 'Open Vacancy'}
+            </a>
+        `;
+
+        return card;
+    }
+
+    function renderJobsGrid() {
+        const sortVal = elSortOrder.value;
+        globalJobsList.sort((a, b) => {
+            const dateA = new Date(a.aktuelleVeroeffentlichungsdatum || a.veroeffentlichungsdatum || 0);
+            const dateB = new Date(b.aktuelleVeroeffentlichungsdatum || b.veroeffentlichungsdatum || 0);
+            return sortVal === 'desc' ? dateB - dateA : dateA - dateB;
+        });
+
+        elGrid.innerHTML = '';
+        globalJobsList.forEach(job => elGrid.appendChild(createJobCard(job)));
+    }
+
+    async function fetchJobs() {
+        const keyword = elKeyword.value.trim();
+        const city = elCity.value.trim() || 'Gelsenkirchen';
+        const radius = elRadius.value;
+        const useProxy = elCorsToggle.checked;
+        const proxyUrl = elCorsUrl.value.trim();
+
+        const params = new URLSearchParams({
+            angebotsart: 1,
+            arbeitszeit: 'mj',
+            size: 100, 
+            umkreis: radius,
+            wo: city
+        });
+
+        if (keyword) {
+            params.append('was', keyword);
         }
 
-        function renderJobsGrid() {
-            const sortVal = elSortOrder.value;
-            globalJobsList.sort((a, b) => {
-                const dateA = new Date(a.aktuelleVeroeffentlichungsdatum || a.veroeffentlichungsdatum || 0);
-                const dateB = new Date(b.aktuelleVeroeffentlichungsdatum || b.veroeffentlichungsdatum || 0);
-                return sortVal === 'desc' ? dateB - dateA : dateA - dateB;
-            });
-
-            elGrid.innerHTML = '';
-            globalJobsList.forEach(job => elGrid.appendChild(createJobCard(job)));
-        }
-
-        async function fetchJobs() {
-            const keyword = elKeyword.value.trim();
-            const city = elCity.value.trim() || 'Gelsenkirchen';
-            const radius = elRadius.value;
-            const useProxy = elCorsToggle.checked;
-            const proxyUrl = elCorsUrl.value.trim();
-
-            const params = new URLSearchParams({
-                angebotsart: 1,
-                size: 100, 
-                umkreis: radius,
-                wo: city
-            });
-
-            // Force "Minijob" as a base keyword to mimic the official job portal
-            let apiKeywords = ['Minijob'];
-            if (keyword) apiKeywords.push(keyword);
-            
-            activeFilters.api.forEach(val => apiKeywords.push(val));
-            const finalKeyword = apiKeywords.filter(Boolean).join(' ');
-            if (finalKeyword) params.append('was', finalKeyword);
-
-            let directApiUrl = `${API_BASE_URL}?${params.toString()}`;
-            let fetchUrl = directApiUrl;
-            
-            if (useProxy && proxyUrl) {
-                if (proxyUrl.includes('corsproxy.io')) {
-                    // corsproxy.io requires ?url= prefix and encoded URI for maximum compatibility
-                    fetchUrl = 'https://corsproxy.io/?url=' + encodeURIComponent(directApiUrl);
-                } else if (proxyUrl.endsWith('=')) {
-                    fetchUrl = proxyUrl + encodeURIComponent(directApiUrl);
-                } else {
-                    const pUrl = proxyUrl.endsWith('/') || proxyUrl.endsWith('?') ? proxyUrl : proxyUrl + '/';
-                    fetchUrl = pUrl + directApiUrl;
-                }
-            }
-
-            updateUIState('loading');
-
-            try {
-                const response = await fetch(fetchUrl, {
-                    method: 'GET',
-                    headers: {
-                        'X-API-Key': API_KEY,
-                        'X-Requested-With': 'XMLHttpRequest' 
-                    }
-                });
-
-                if (!response.ok) throw new Error(`Status ${response.status}: ${response.statusText}`);
-
-                const data = await response.json();
-                let jobs = data.stellenangebote || [];
-
-                // Filter Minijobs strictly but fairly
-                jobs = jobs.filter(job => {
-                    const title = (job.titel || '').toLowerCase();
-                    // Remove obvious full-time jobs that matched the keyword search
-                    if (title.includes('vollzeit') && !/(minijob|aushilfe|teilzeit)/.test(title)) return false;
-                    return true;
-                });
-
-                // Client filter exclusions
-                if (activeFilters.client.has('no-license')) {
-                    jobs = jobs.filter(job => !/(führerschein|klasse b|pkw|fahrer|kurier|lieferant)/.test((job.titel || '').toLowerCase()));
-                }
-
-                if (jobs.length === 0) {
-                    updateUIState('empty');
-                    return;
-                }
-
-                globalJobsList = jobs;
-                document.getElementById('resultsCount').textContent = globalJobsList.length;
-                document.getElementById('resultsLocation').textContent = city;
-                
-                updateUIState('success');
-                renderJobsGrid();
-
-            } catch (error) {
-                console.error("Fetch Error:", error);
-                updateUIState('error', error.message);
+        let directApiUrl = `${API_BASE_URL}?${params.toString()}`;
+        let fetchUrl = directApiUrl;
+        
+        if (useProxy && proxyUrl) {
+            if (proxyUrl.includes('corsproxy.io') || proxyUrl.includes('allorigins')) {
+                const cleanProxy = proxyUrl.endsWith('?') || proxyUrl.endsWith('=') ? proxyUrl : proxyUrl + '?url=';
+                fetchUrl = cleanProxy + encodeURIComponent(directApiUrl);
+            } else {
+                const pUrl = proxyUrl.endsWith('/') ? proxyUrl : proxyUrl + '/';
+                fetchUrl = pUrl + directApiUrl;
             }
         }
 
-        document.addEventListener('DOMContentLoaded', fetchJobs);
-    </script>
+        updateUIState('loading');
+
+        try {
+            const response = await fetch(fetchUrl, {
+                method: 'GET',
+                headers: {
+                    'X-API-Key': API_KEY,
+                    'X-Requested-With': 'XMLHttpRequest' 
+                }
+            });
+
+            if (!response.ok) throw new Error(`Status ${response.status}: ${response.statusText}`);
+
+            const data = await response.json();
+            let jobs = data.stellenangebote || [];
+
+            if (jobs.length === 0) {
+                updateUIState('empty');
+                return;
+            }
+
+            globalJobsList = jobs;
+            document.getElementById('resultsCount').textContent = globalJobsList.length;
+            document.getElementById('resultsLocation').textContent = city;
+            
+            updateUIState('success');
+            renderJobsGrid();
+
+        } catch (error) {
+            console.error("Fetch Error:", error);
+            updateUIState('error', error.message);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchJobs);
+</script>
 </body>
 </html>
